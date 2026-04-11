@@ -1,11 +1,47 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-
-<AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" >
-   <children>
-      <Button layoutX="152.0" layoutY="70.0" mnemonicParsing="false" text="Button" />
-   </children>
+<AnchorPane prefHeight="396.0" prefWidth="603.0" style="-fx-background-color: #1F6F5F;"
+            xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="org.ProjectX.controller.WelcomeScreenController">
+    <children>
+        <VBox alignment="TOP_CENTER" layoutX="15.0" layoutY="7.0" prefHeight="366.0" prefWidth="573.0"
+              AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0"
+              AnchorPane.topAnchor="7.0">
+            <children>
+                <TextField alignment="CENTER" editable="false"
+                           style="-fx-background-color: #1F6F5F; -fx-text-fill: white;" text="Job Assistent">
+                    <font>
+                        <Font name="Arial Bold" size="24.0"/>
+                    </font>
+                </TextField>
+                <ImageView fitHeight="276.0" fitWidth="486.0" pickOnBounds="true" preserveRatio="true"
+                           style="-fx-effect: -fx-effect: innershadow(gaussian, red, 0, 1, 0, 0);;">
+                    <image>
+                        <Image url="@../media/pinetree.png"/>
+                    </image>
+                    <VBox.margin>
+                        <Insets/>
+                    </VBox.margin>
+                </ImageView>
+                <Region prefHeight="136.0" prefWidth="573.0"/>
+                <Button fx:id="startButton" alignment="BOTTOM_RIGHT" mnemonicParsing="false" onAction="#startProgram"
+                        style="-fx-background-color: #2FA084;" text="Start" textAlignment="CENTER" textFill="WHITE"
+                        VBox.vgrow="NEVER">
+                    <font>
+                        <Font name="Arial Bold" size="18.0"/>
+                    </font>
+                </Button>
+            </children>
+        </VBox>
+    </children>
 </AnchorPane>
