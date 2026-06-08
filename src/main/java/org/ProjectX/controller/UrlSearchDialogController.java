@@ -2,12 +2,8 @@ package org.ProjectX.controller;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import jdk.jshell.execution.Util;
 import org.ProjectX.Database.LocalDAO;
 import org.ProjectX.util.Utils;
-
-import java.net.URI;
-import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
