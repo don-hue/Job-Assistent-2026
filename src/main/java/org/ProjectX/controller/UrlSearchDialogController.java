@@ -18,10 +18,6 @@ public class UrlSearchDialogController {
     private TextField locationField;
 
     @FXML
-    private Button saveButton;
-
-
-    @FXML
     private TextArea userUrl;
 
     @FXML
@@ -59,7 +55,7 @@ public class UrlSearchDialogController {
     }
 
     public void saveUrl() {
-        Task<Void> task = new Task<Void>() {
+        Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
                 LocalDAO db = LocalDAO.getInstance();
