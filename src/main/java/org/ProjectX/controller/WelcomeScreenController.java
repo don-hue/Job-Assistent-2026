@@ -6,11 +6,21 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.event.ActionEvent;
+import javafx.scene.control.TextField;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 
 import java.io.IOException;
 
 public class WelcomeScreenController {
+
+    @FXML
+    private TextField appTitle;
+
+    @FXML
+    public void initialize() {
+        appTitle.setFocusTraversable(false);
+    }
 
     @FXML
     private void startProgram(ActionEvent event) throws IOException {

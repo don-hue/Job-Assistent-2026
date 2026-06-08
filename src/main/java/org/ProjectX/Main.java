@@ -6,22 +6,30 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+
+/*
+
+toDo: Input Validator for URL Builder
+toDO: Split LocalBD Class into Repositories for Each Entity
+toDo: Implement JMS for Event-based Communication
+toDo: Crawler Factory Design Pattern
+toDo: showAlert in Utility amd make every error show for user
+toDo: Pagination
+toDO: Delete all Searches to clear finate filter
+toDO: optimize CSS for Alerts
+ */
+
+
 public class Main extends Application {
 
    public static void main(String[] args) {
-//        int maxPages = 10; // limit to avoid crawling too much
-//        String startUrl = "https://www.stepstone.de/jobs/software-entwickler-in/in-altena?radius=5&searchOrigin=Resultlist_top-search&whereType=autosuggest&q=Software-Entwickler%2Fin"; // seed URL
-//
-//        StupidCrawler crawler = new StupidCrawler(maxPages);
-//        CompanyCrawler companyCrawler = new CompanyCrawler();
-//        //crawler.crawl(startUrl);
-//
-//        //companyCrawler.homePage();
-//        //test.show();
-
-
+      /* CompanyCrawler crawler = new CompanyCrawler();
+       crawler.crawlHomepageURL();*/
+/*
+       StupidCrawler stupid = new StupidCrawler();
+       stupid.crawlCompanyURL("adesso");*/
         launch(args);
-//
+
     }
 
     @Override
