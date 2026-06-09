@@ -2,7 +2,11 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+src/main/java/org/ProjectX/service/CompanyCrawler.java
+src/main/resources/.properties
 .kotlin
+
+
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
