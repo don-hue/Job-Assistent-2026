@@ -1,7 +1,7 @@
 # Job-Assistent 2026
 ## Intro 
 Der Job-Assistent ist ein Desktop-Programm, das die Effizienz bei der Arbeitssuche steigern soll.
-Er dient als eine *Anlaufstelle* für diverse Jobportale und erweitert die Filtermöglichkeiten plattformübergreifend.
+Er dient als eine **Anlaufstelle** für diverse Jobportale und erweitert die Filtermöglichkeiten plattformübergreifend.
 
 ## Motivation
 In der digitalen Welt, in der wir uns heute bewegen, ist ein etablierter Weg Jobportale als primäre Quelle für die 
