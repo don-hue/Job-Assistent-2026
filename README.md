@@ -1,14 +1,3 @@
-- Intro / Zusammenfassung und Funktion
-- Motivation
-- - SaaSe - Software as a Servant
-- Vision -> Drei Phasen erklaren - SaaSe
-- Phase 1 
-- - Architektur
-- - Featrureset
-- - Installation
-- Phase 2 - Architekur und Features
-
-
 # Job-Assistent 2026
 ## Intro 
 Der Job-Assistent ist ein Desktop-Programm, das die Effizienz bei der Arbeitssuche steigern soll.
