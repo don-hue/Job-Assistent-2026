@@ -22,7 +22,7 @@ Das Projekt besteht aus 3 Phasen. Zu jeder Phase gibt es ein Featureset. Die akt
 In der Gesamtheit dieses Projektes ist das MVP als Phase 1. einzuordnen. Phase 2 stellt ein ausgereiftes Produkt mit bekannten und etablierten Features dar. 
 Phase 3 führt KI-Modelle ein. 
 
-## Phase 1
+## Phase 1 - MVP
 ### Architektur
 Ziel dieser Projektphase ist ein MVP. Die Wahl des zugrundeliegenden Tech-Stacks wurde unter dem Aspekt der Robustheit sowie einer vielseitigen, 
 langjährigen Open-Source Community betrachtet. Ersteres führt unweigerlich zu einer stark typisierten Sprache und zweiteres zu einer Programmiersprache 
@@ -47,6 +47,33 @@ zukünftig keine Stellen von diesem Unternehmen angezeigt werden.
 Das Projekt muss heruntergeladen werden und im Terminal mittels `mvn javafx:run` gestartet werden. Voraussetzung ist hierbei Java, Javafx sowie Maven.
 Ein Wizzard ist in Phase 2 geplant. 
 
+## Phase 2 - Ein Produkt
+Phase 2 beschreibt ein vollständiges Produkt mit einem reichhaltigen Featureset, welches sich in allen gängigen Plattformen etabliert hat:
+- Die Suche erstreckt sich über alle großen Jobportale
+- Die Suchaufträge können jederzeit von dem User bearbeitet werden. 
+- Eine Pagination sowie die Möglichkeit Jobs zu markieren oder zu löschen wird verfügbar sein.
+- Die angezeigten Jobs können sortiert und gefiltert werden
+- Unternehmen können von der Suche ausgeschlossen oder auch als Filter gesetzt werden.
+- Notifications via E-mail sollen möglich sein.
+- Auto-Updates bei der Suchen; dabei sollen neue Suchergebnisse hervorgehoben sein.
+- Die größten Unternehmen im deutschen Raum werden direkt in die Suche eingebunden (da diese Unternehmen häufig nicht in Jobportalen auftauchen).
 
-## Work in Progress...
+Um die Features umsetzen zu können, sind technische Anforderungen nötig: 
+
+- Eine eventbasierte Architektur auch bekannt als das Publish/Subscribe Pattern, welches mittels der nativen _Java JMS_ Libary umgesetzt wird
+- Eine ausgereifte Error- und Feedback-UI
+- Eine Login-Maske für proprietäre Suchportale wie z.B. Indeed. Dabei wird das _Spring Framework_ eingeführt.
+- EIn Installations-Wizzard. 
+
+## Phase 3 - Der KI-Assistent
+In dieser Phase werden drei KI-Features implementiert: 
+
+- ein Chat-Assistent, der z.B. Vorschläge zu passendes Keywords geben kann
+- ein Recruiting-Assistent, der Stellenbeschreibungen mit dem zuvor eingegeben Userprofil abgleicht
+- ein Such-Assistent, der die explizite Stelle auf der Firmenseite heraussucht und sogar Firmen eigenständig durchsuchen kann
+
+Für diese Features werden Microservices geschrieben, basierend auf der Programmiersprache _Python_. Die Services werden lokal auf einem Server laufen;
+voraussichtlich wird Django dafür verwendet. Da in Phase 2 schon das Spring Framework eingeführt wurde, können die Microservices problemlos mittels REST-Schnittellen
+miteinander verbunden werden. Spätestens zu diesem Zeitpunkt ist die Einführung von Docker oder vielleicht sogar Kubernetes erstrebenswert. 
+
 
