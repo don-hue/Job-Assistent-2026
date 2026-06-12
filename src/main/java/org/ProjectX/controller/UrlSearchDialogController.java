@@ -3,6 +3,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.ProjectX.Database.LocalDAO;
+import org.ProjectX.Database.SearchUrlRepository;
 import org.ProjectX.util.Utils;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
@@ -58,7 +59,7 @@ public class UrlSearchDialogController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                LocalDAO db = LocalDAO.getInstance();
+                SearchUrlRepository db = SearchUrlRepository.getInstance();
                 Utils utils = Utils.getInstance();
                 if(userUrl.getText().isEmpty()){
                     String url  = buildUrl();

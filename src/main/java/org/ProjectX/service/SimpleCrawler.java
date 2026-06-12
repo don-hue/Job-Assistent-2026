@@ -1,5 +1,7 @@
 package org.ProjectX.service;
 
+import org.ProjectX.Database.CompanyRepository;
+import org.ProjectX.Database.JobRepository;
 import org.ProjectX.Database.LocalDAO;
 import org.ProjectX.dto.JobDto;
 import org.ProjectX.entity.CompanyEntity;
@@ -19,7 +21,9 @@ import java.util.List;
 
 
 public class SimpleCrawler {
-    
+    CompanyRepository companyDb = CompanyRepository.getInstance();
+    JobRepository jobDb = JobRepository.getInstance();
+    Utils util = Utils.getInstance();
 
     public void crawl(String url) {
         if(url.toLowerCase().contains("stepstone")) {
@@ -28,10 +32,7 @@ public class SimpleCrawler {
     }
 
     private void crawlStepstone(String url) {
-        LocalDAO db = LocalDAO.getInstance();
-        Utils util = Utils.getInstance();
         int pages = util.howManyPages(url);
-
         for (int i = 1; i < pages + 1 ; i++) {
             try {
                 String pagedURL = url + "&page=" + i;
@@ -45,7 +46,7 @@ public class SimpleCrawler {
 
                     if (jobDiv != null && companyDiv!=null) {
                         JobDto dto = new JobDto(jobDiv.text(), companyDiv.text());
-                        db.saveJobs(dto);
+                        jobDb.saveJobs(dto);
                     }
                 }
 
@@ -58,8 +59,7 @@ public class SimpleCrawler {
     }
 
     public void findCompanyURL() {
-        LocalDAO db = LocalDAO.getInstance();
-        List<CompanyEntity> companies = db.getCompaniesWithoutUrl();
+        List<CompanyEntity> companies = companyDb.getCompaniesWithoutUrl();
         companies.forEach(company -> {
             crawlCompanyURL(company.getCompanyName(), company.getId());
             try {
@@ -72,8 +72,6 @@ public class SimpleCrawler {
 
     private void crawlCompanyURL(String companyName, Long id) {
         WebClient webClient = new WebClient();
-        LocalDAO db = LocalDAO.getInstance();
-        Utils util = Utils.getInstance();
         webClient.getOptions().setJavaScriptEnabled(true);
         webClient.getOptions().setCssEnabled(false);
 
@@ -91,7 +89,7 @@ public class SimpleCrawler {
 
             if (firstResult != null) {
                 URL url = util.convertToURL(firstResult.attr("href"));
-                db.updateCompanyURL(url, id);
+                companyDb.updateCompanyURL(url, id);
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

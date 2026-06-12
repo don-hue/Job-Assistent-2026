@@ -1,0 +1,94 @@
+package org.ProjectX.Database;
+import org.ProjectX.dto.JobDto;
+import org.ProjectX.entity.CompanyEntity;
+import org.ProjectX.entity.JobEntity;
+import org.ProjectX.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import java.util.Collections;
+import java.util.List;
+
+public class JobRepository {
+    private static final JobRepository INSTANCE = new JobRepository();
+    private JobRepository(){};
+
+    public static JobRepository getInstance() {
+        return INSTANCE;
+    }
+
+    public void saveJobs(JobDto dto){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        try( Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+
+            try {
+                CompanyEntity company = session
+                        .createQuery("FROM CompanyEntity WHERE companyName = :name", CompanyEntity.class)
+                        .setParameter("name", dto.companyName())
+                        .uniqueResult();
+
+                if (company == null) {
+                    company = new CompanyEntity();
+                    company.setCompanyName(dto.companyName());
+                    company.setShowCompany(true);
+                    session.persist(company);
+                }
+
+
+                JobEntity job = session
+                        .createQuery("FROM JobEntity WHERE company.companyName = :name AND jobTitle = :job", JobEntity.class )
+                        .setParameter("name",dto.companyName())
+                        .setParameter("job", dto.job())
+                        .uniqueResult();
+
+                if(job == null) {
+                    job = new JobEntity();
+                    job.setJobTitle(dto.job());
+                    job.setCompany(company);
+                }
+
+                session.persist(job);
+
+                tx.commit();
+            } catch (Exception e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                System.out.println("Error" + e.getMessage());
+                throw e;
+            }
+
+
+        } catch (Exception e) {
+            System.out.println("Error" + e.getMessage());
+            throw e;
+        }
+    }
+    public List<JobEntity> getAllJobs() {
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        Session session = sessionFactory.openSession();
+        Transaction tx = null;
+
+        try(session) {
+            tx = session.beginTransaction();
+            List<JobEntity> jobs = session
+                    .createQuery("FROM JobEntity WHERE company.showCompany = true", JobEntity.class)
+                    .getResultList();
+
+            tx.commit();
+
+            return jobs == null
+                    ? Collections.emptyList()
+                    : jobs;
+
+        } catch (Exception e) {
+            System.out.println("Error :" + e.getMessage());
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
+
+            throw e;
+        }
+    }
+}

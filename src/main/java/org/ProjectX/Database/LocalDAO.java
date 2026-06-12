@@ -23,7 +23,7 @@ public class LocalDAO {
         return  INSTANCE;
     }
 
-    private static final String URL = "jdbc:h2:file:./data/localDB";
+   /* private static final String URL = "jdbc:h2:file:./data/localDB";
     private static final String USER = "localUser";
     private static final String PASSWORD = "";
 
@@ -31,7 +31,7 @@ public class LocalDAO {
 
     public static Connection getConnection() throws Exception {
         return DriverManager.getConnection(URL, USER, PASSWORD);
-    }
+    }*/
 
     public void saveJobs(JobDto dto){
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();

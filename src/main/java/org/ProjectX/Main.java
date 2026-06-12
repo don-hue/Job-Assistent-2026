@@ -23,11 +23,6 @@ toDO: optimize CSS for Alerts
 public class Main extends Application {
 
    public static void main(String[] args) {
-      /* CompanyCrawler crawler = new CompanyCrawler();
-       crawler.crawlHomepageURL();*/
-/*
-       StupidCrawler stupid = new StupidCrawler();
-       stupid.crawlCompanyURL("adesso");*/
         launch(args);
 
     }

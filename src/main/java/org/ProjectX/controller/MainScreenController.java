@@ -17,7 +17,10 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.ProjectX.Database.CompanyRepository;
+import org.ProjectX.Database.JobRepository;
 import org.ProjectX.Database.LocalDAO;
+import org.ProjectX.Database.SearchUrlRepository;
 import org.ProjectX.entity.JobEntity;
 import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.service.SimpleCrawler;
@@ -235,7 +238,7 @@ public class MainScreenController {
         Task<List<JobEntity>> task = new Task<>() {
             @Override
             protected List<JobEntity> call() {
-                LocalDAO db = LocalDAO.getInstance();
+                JobRepository db = JobRepository.getInstance();
                 return db.getAllJobs();
             }
         };
@@ -276,7 +279,7 @@ public class MainScreenController {
             @Override
             protected Void call() {
                   SimpleCrawler crawler = new SimpleCrawler();
-                  LocalDAO db = LocalDAO.getInstance();
+                  SearchUrlRepository db = SearchUrlRepository.getInstance();
                   List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
 
                   if(!searchUrls.isEmpty()) {
@@ -317,7 +320,7 @@ public class MainScreenController {
     }
 
     private void showAlertWithButton(String company) {
-        LocalDAO db = LocalDAO.getInstance();
+        CompanyRepository db = CompanyRepository.getInstance();
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("Bestätigung");
         alert.setHeaderText("Wollen sie das Unternehmen gänzlich aus alles Suchen entfernen ?");
