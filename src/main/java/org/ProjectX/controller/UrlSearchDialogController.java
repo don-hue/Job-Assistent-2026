@@ -57,7 +57,7 @@ public class UrlSearchDialogController {
     public void saveUrl() {
         Task<Void> task = new Task<>() {
             @Override
-            protected Void call() throws Exception {
+            protected Void call() {
                 SearchUrlRepository db = SearchUrlRepository.getInstance();
                 Utils utils = Utils.getInstance();
                 if(userUrl.getText().isEmpty()){

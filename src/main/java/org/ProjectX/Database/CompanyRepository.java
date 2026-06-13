@@ -1,6 +1,5 @@
 package org.ProjectX.Database;
 import org.ProjectX.entity.CompanyEntity;
-import org.ProjectX.entity.JobEntity;
 import org.ProjectX.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -10,7 +9,7 @@ import java.util.List;
 
 public class CompanyRepository {
     private static final CompanyRepository INSTANCE = new CompanyRepository();
-    private CompanyRepository() {};
+    private CompanyRepository() {}
 
     public static CompanyRepository getInstance() {
         return INSTANCE;
