@@ -19,7 +19,6 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.ProjectX.Database.CompanyRepository;
 import org.ProjectX.Database.JobRepository;
-import org.ProjectX.Database.LocalDAO;
 import org.ProjectX.Database.SearchUrlRepository;
 import org.ProjectX.entity.JobEntity;
 import org.ProjectX.entity.SearchUrlEntity;

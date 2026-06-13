@@ -2,7 +2,7 @@ package org.ProjectX.service;
 
 import org.ProjectX.Database.CompanyRepository;
 import org.ProjectX.Database.JobRepository;
-import org.ProjectX.Database.LocalDAO;
+
 import org.ProjectX.dto.JobDto;
 import org.ProjectX.entity.CompanyEntity;
 import org.ProjectX.util.Utils;

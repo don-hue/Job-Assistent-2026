@@ -1,5 +1,6 @@
 package org.ProjectX.Database;
 import org.ProjectX.entity.CompanyEntity;
+import org.ProjectX.entity.JobEntity;
 import org.ProjectX.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -49,20 +50,24 @@ public class CompanyRepository {
 
                 if (searchedCompany != null) {
                     searchedCompany.setShowCompany(false);
+                    session.createMutationQuery(
+                                    "DELETE FROM JobEntity WHERE company.id = :companyId")
+                            .setParameter("companyId", searchedCompany.getId())
+                            .executeUpdate();
                 }
-
                 tx.commit();
 
             } catch (Exception e) {
                 if (tx != null && tx.isActive()) {
-                    tx.rollback(); // ✅ session still open here
+                    tx.rollback();
                 }
                 System.out.println("Error in updateCompany()" + e.getMessage());
-                throw e; // or return false
+                throw e;
             }
 
         } catch (Exception e) {
             System.out.println("Error in updateCompany()" + e.getMessage());
+            throw e;
         }
     }
     public List<CompanyEntity> getCompaniesWithoutUrl(){

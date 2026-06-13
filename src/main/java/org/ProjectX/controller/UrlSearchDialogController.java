@@ -2,7 +2,6 @@ package org.ProjectX.controller;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.ProjectX.Database.LocalDAO;
 import org.ProjectX.Database.SearchUrlRepository;
 import org.ProjectX.util.Utils;
 import java.net.URLEncoder;
