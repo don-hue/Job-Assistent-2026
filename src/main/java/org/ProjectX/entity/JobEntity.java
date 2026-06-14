@@ -10,6 +10,8 @@ public class JobEntity {
 
     @Column(name="job_title")
     private String jobTitle ;
+    @Column()
+    private boolean applied ;
 
     @ManyToOne
     @JoinColumn(name="company_id")
@@ -29,5 +31,13 @@ public class JobEntity {
 
     public void setCompany(CompanyEntity company) {
         this.company = company;
+    }
+
+    public void setApplied(boolean applied){
+        this.applied = applied;
+    }
+
+    public boolean getApplied(){
+        return this.applied;
     }
 }

@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import java.util.Collections;
 import java.util.List;
+import org.hibernate.SessionFactory;
 
 public class JobRepository {
     private static final JobRepository INSTANCE = new JobRepository();
@@ -46,6 +47,7 @@ public class JobRepository {
                     job = new JobEntity();
                     job.setJobTitle(dto.job());
                     job.setCompany(company);
+                    job.setApplied(false);
                 }
 
                 session.persist(job);
@@ -89,6 +91,32 @@ public class JobRepository {
             }
 
             throw e;
+        }
+    }
+    public void updateAppliedJob(boolean applied,String company, String jobTitle) {
+        SessionFactory factory = HibernateUtil.getSessionFactory();
+        try(Session session = factory.openSession()) {
+            Transaction tx = session.beginTransaction();
+
+            try {
+                JobEntity job = session
+                        .createQuery("FROM JobEntity WHERE jobTitle = :title AND company.companyName = :company ", JobEntity.class)
+                        .setParameter("title", jobTitle)
+                        .setParameter("company", company)
+                        .uniqueResult();
+                if (job != null) {
+                    job.setApplied(applied);
+                }
+                tx.commit();
+            } catch (Exception e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                System.out.println("Error" + e.getMessage());
+                throw e;
+            }
+        }catch (Exception e) {
+            System.out.println("Error" + e.getMessage());
         }
     }
 }

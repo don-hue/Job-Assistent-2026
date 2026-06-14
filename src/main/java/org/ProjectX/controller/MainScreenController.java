@@ -3,8 +3,6 @@ package org.ProjectX.controller;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
-import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.Dialog;
@@ -17,11 +15,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.ProjectX.Database.CompanyRepository;
 import org.ProjectX.Database.JobRepository;
 import org.ProjectX.Database.SearchUrlRepository;
 import org.ProjectX.entity.JobEntity;
 import org.ProjectX.entity.SearchUrlEntity;
+import org.ProjectX.factories.Alert.AlertFactory;
+import org.ProjectX.factories.Alert.AlertInterface;
+import org.ProjectX.factories.Alert.InformationAlertFactory;
+import org.ProjectX.factories.Checkbox.AppliedCheckboxFactory;
+import org.ProjectX.factories.Checkbox.BanCheckboxFactory;
+import org.ProjectX.factories.Checkbox.CheckboxFactory;
+import org.ProjectX.factories.Checkbox.CheckboxInterface;
 import org.ProjectX.service.SimpleCrawler;
 
 import java.awt.*;
@@ -39,6 +43,14 @@ public class MainScreenController {
     private ScrollPane centerScrollPane;
     Dialog<Void> dialog = new Dialog<>();
 
+    AlertFactory informationFactory = new InformationAlertFactory();
+    AlertInterface alertInformation = informationFactory.createAlert();
+
+    CheckboxFactory checkboxBanFactory = new BanCheckboxFactory();
+    CheckboxInterface checkboxBanInterface = checkboxBanFactory.create();
+    CheckboxFactory checkboxAppliedFactory = new AppliedCheckboxFactory();
+    CheckboxInterface checkboxAppliedInterface = checkboxAppliedFactory.create();
+
     @FXML
     public void initialize() {
         clipScrollPane();
@@ -46,21 +58,24 @@ public class MainScreenController {
 
     }
 
-    private HBox createCard(String jobTitle, String company, URL url) {
+    private HBox createCard(String jobTitle, String company, URL url, boolean applied) {
         HBox card = new HBox(15);
         VBox content = createLabelsForCard(jobTitle, company, url);
-        HBox checkboxContainer = createCheckboxForCard(company);
+        HBox checkboxContainer = checkboxBanInterface.createSpecificCheckbox(company,jobTitle, applied, this::loadJobs);
+        HBox checkboxContainer2 = checkboxAppliedInterface.createSpecificCheckbox(company,jobTitle,applied, this::loadJobs);
         Region spacer = new Region();
+        String bgColor = applied
+                ? "lightgray"
+                : "white";
         card.setStyle(
-                        "-fx-background-color: white;" +
+                        "-fx-background-color:"  + bgColor + ";" +
                         "-fx-padding: 15;" +
                         "-fx-background-radius: 10;" +
                         "-fx-effect: drop shadow(gaussian, rgba(0,0,0,0.15), 8,0,0,4);"
         );
         card.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        card.getChildren().addAll(content, spacer,checkboxContainer);
-
+        card.getChildren().addAll(content, spacer,checkboxContainer, checkboxContainer2);
 
         return card;
     }
@@ -82,24 +97,6 @@ public class MainScreenController {
 
         content.getChildren().addAll(title, link);
         return content;
-    }
-    private HBox createCheckboxForCard(String company) {
-        HBox checkboxContainer = new HBox(5);
-        CheckBox checkbox = new CheckBox();
-
-        checkboxContainer.setAlignment(Pos.BOTTOM_CENTER);
-        HBox.setMargin(checkbox, new Insets(0, 0, 5, 0));
-        Label checkboxTitle = new Label("Unternehmen ignorieren");
-        checkboxTitle.setStyle("-fx-font-size: 16px;");
-
-        checkbox.setOnAction(_ -> {
-            if (checkbox.isSelected()) {
-                showAlertWithButton(company);
-            }
-        });
-        checkboxContainer.getChildren().addAll(checkbox, checkboxTitle);
-
-        return checkboxContainer;
     }
     private void clipScrollPane() {
         Rectangle clip = new Rectangle();
@@ -248,15 +245,15 @@ public class MainScreenController {
 
 
             if(!jobs.isEmpty()) {
-                jobs.stream().map(job->createCard(job.getJobTitle(), job.getCompany().getCompanyName(),job.getCompany().getUrl()))
+                jobs.stream().map(job->createCard(job.getJobTitle(), job.getCompany().getCompanyName(),job.getCompany().getUrl(),job.getApplied()))
                         .forEach(card -> cardContainer.getChildren().add(card));
                 System.out.println("Beendet");
                 dialog.close();
-                showAlert("Erfolreich", "Jobs gefunden !");
+                alertInformation.showAlert("Erfolgreich", "Jobs gefunden !");
             } else {
                 System.out.println("Beendet");
                 dialog.close();
-                showAlert("Fehler", "Keine Jobs gefunden! Bitte lege eine Suche an");
+                alertInformation.showAlert("Fehler", "Keine Jobs gefunden! Bitte lege eine Suche an");
             }
         });
 
@@ -264,7 +261,7 @@ public class MainScreenController {
             System.out.println("Abgebrochen");
             task.getException().printStackTrace();
             dialog.close();
-            showAlert("Fehler", "Keine Jobs gefunden. Bitte legen sie zuerst eine Suche an");
+            alertInformation.showAlert("Fehler", "Keine Jobs gefunden. Bitte legen sie zuerst eine Suche an");
         });
 
         new Thread(task).start();
@@ -296,45 +293,19 @@ public class MainScreenController {
         task.setOnSucceeded(_ -> {
             System.out.println("Beendet");
             dialog.close();
-            showAlert("Erfolreich", "Die Suche war erfolgreich !");
+            alertInformation.showAlert("Erfolgreich", "Die Suche war erfolgreich !");
         });
 
         task.setOnFailed(_ -> {
             System.out.println("Abgebrochen");
             dialog.close();
             task.getException().printStackTrace();
-            showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal.");
+            alertInformation.showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal.");
         });
 
         new Thread(task).start();
 
     }
-
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void showAlertWithButton(String company) {
-        CompanyRepository db = CompanyRepository.getInstance();
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Bestätigung");
-        alert.setHeaderText("Wollen sie das Unternehmen gänzlich aus alles Suchen entfernen ?");
-        alert.setContentText("Das Löschen führt zu einem endgültigen Entfernen des Unternehmens aus der Suche. " +
-                "Zukünftige Suchen werden diesen Filter nutzen. " +
-                "In dieser Version kann der Filter nur durch komplettes Löschen alles Suchen zurückgesetzt werden.");
-        alert.showAndWait()
-                .filter(response -> response == ButtonType.OK)
-                .ifPresent(_ -> {
-                    db.updateCompany(company);
-                    loadJobs();
-                });
-    }
-
-
 
 }
 
