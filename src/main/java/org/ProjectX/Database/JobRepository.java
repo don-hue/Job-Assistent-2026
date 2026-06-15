@@ -75,7 +75,7 @@ public class JobRepository {
         try(session) {
             tx = session.beginTransaction();
             List<JobEntity> jobs = session
-                    .createQuery("FROM JobEntity WHERE company.showCompany = true", JobEntity.class)
+                    .createQuery("FROM JobEntity WHERE company.showCompany = true ORDER BY company.companyName", JobEntity.class)
                     .getResultList();
 
             tx.commit();

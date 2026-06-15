@@ -132,7 +132,6 @@ public class MainScreenController {
 
         textFlow.getChildren().addAll(header, desc1, desc2,desc3, desc4, desc5);
     }
-
     private void createLoadingDialogUrl(){
 
         dialog.setTitle("Bitte warten");
@@ -197,7 +196,6 @@ public class MainScreenController {
 
         dialog.show();
     }
-
     @FXML
     private void openSearchConfigDialog() throws IOException {
         FXMLLoader loader = new FXMLLoader(
