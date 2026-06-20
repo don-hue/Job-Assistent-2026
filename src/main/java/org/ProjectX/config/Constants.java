@@ -8,6 +8,6 @@ public class Constants {
     public final static String BAN_COMPANY_TEXT = "Das Löschen führt zu einem endgültigen Entfernen des Unternehmens aus der Suche. " +
             "Zukünftige Suchen werden diesen Filter nutzen. " +
             "In dieser Version kann der Filter nur durch komplettes Löschen aller Suchen zurückgesetzt werden.";
-    public final static String COMMERZBANK = "https://jobs.commerzbank.com/index.php?ac=search_result";
+    public final static String COMMERZBANK = "https://api-jobs.commerzbank.com/search/?data=";
 
 }

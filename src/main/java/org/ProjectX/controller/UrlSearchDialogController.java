@@ -3,6 +3,7 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.ProjectX.Database.SearchUrlRepository;
+import org.ProjectX.config.Constants;
 import org.ProjectX.util.Utils;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
@@ -158,7 +159,7 @@ public class UrlSearchDialogController {
 
             String json = mapper.writeValueAsString(root);
 
-            return "https://api-jobs.commerzbank.com/search/?data="
+            return Constants.COMMERZBANK
                     + URLEncoder.encode(json, StandardCharsets.UTF_8);
 
         } catch (Exception e) {

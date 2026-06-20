@@ -1,13 +1,7 @@
 package org.ProjectX.service;
-
-import org.ProjectX.dto.JobDto;
-import org.htmlunit.WebClient;
-import org.htmlunit.html.HtmlPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import tools.jackson.databind.JsonNode;
-import tools.jackson.databind.ObjectMapper;
+
 
 import java.io.IOException;
 import java.net.*;

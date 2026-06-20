@@ -35,46 +35,6 @@ public class Utils {
             return false;
         }
     }
-    public URL convertToURL(String href) {
-        String query = href.substring(href.indexOf('?') + 1);
-        Map<String, String> params =
-                Arrays.stream(query.split("&"))
-                        .map(p -> p.split("=", 2))
-                        .collect(Collectors.toMap(
-                                a -> a[0],
-                                a -> a.length > 1 ? a[1] : ""
-                        ));
-
-        String realUrl= URLDecoder.decode(
-                params.get("uddg"),
-                StandardCharsets.UTF_8
-        );
-
-        try {
-            return URI.create(realUrl).toURL();
-
-        } catch (MalformedURLException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    public int howManyPages (String url) {
-        int page = 1;
-        Boolean goOn = true;
-
-        while(goOn) {
-            try {
-                String pagedURL = url + "&page=" + page;
-                Document doc = Jsoup.connect(pagedURL).get();
-                page++;
-
-            } catch (IOException e) {
-                System.out.println("in StupidCrawler" + e.getMessage() );
-                page--;
-                goOn = false;
-            }
-        }
-        return page;
-    }
     public double[] getGeoData(String postalCode) {
         try (WebClient webClient = new WebClient()) {
 
