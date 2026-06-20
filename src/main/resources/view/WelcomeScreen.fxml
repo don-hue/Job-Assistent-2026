@@ -20,7 +20,7 @@
                         <Font name="Arial Bold" size="24.0" />
                     </font>
                 </TextField>
-                <ImageView fitHeight="276.0" fitWidth="486.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect: -fx-effect: innershadow(gaussian, red, 0, 1, 0, 0);;">
+                <ImageView fitHeight="276.0" fitWidth="486.0" pickOnBounds="true" preserveRatio="true" style="-fx-effect:innershadow(gaussian, red, 0, 1, 0, 0);">
                     <image>
                         <Image url="@../media/pinetree.png" />
                     </image>

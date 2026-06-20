@@ -26,7 +26,8 @@ import org.ProjectX.factories.Checkbox.AppliedCheckboxFactory;
 import org.ProjectX.factories.Checkbox.BanCheckboxFactory;
 import org.ProjectX.factories.Checkbox.CheckboxFactory;
 import org.ProjectX.factories.Checkbox.CheckboxInterface;
-import org.ProjectX.service.SimpleCrawler;
+import org.ProjectX.factories.Crawler.CrawlerFactory;
+import org.ProjectX.factories.Crawler.CrawlerInterface;
 
 import java.awt.*;
 import java.io.IOException;
@@ -202,20 +203,14 @@ public class MainScreenController {
                 getClass().getResource("/view/UrlBuilderDialog.fxml"));
 
         Dialog<ButtonType> dialog = new Dialog<>();
-
         dialog.setTitle("Neue Jobsuche");
-
         dialog.getDialogPane().setContent(loader.load());
-
         dialog.getDialogPane().getButtonTypes().addAll(
                 ButtonType.OK,
                 ButtonType.CANCEL
         );
-
         Optional<ButtonType> result = dialog.showAndWait();
-
         if (result.isPresent() && result.get() == ButtonType.OK) {
-
             UrlSearchDialogController controller =
                     loader.getController();
 
@@ -272,17 +267,17 @@ public class MainScreenController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
-                  SimpleCrawler crawler = new SimpleCrawler();
-                  SearchUrlRepository db = SearchUrlRepository.getInstance();
-                  List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
+                SearchUrlRepository db = SearchUrlRepository.getInstance();
+                List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
 
-                  if(!searchUrls.isEmpty()) {
+                if(!searchUrls.isEmpty()) {
                       for(SearchUrlEntity url :  searchUrls) {
-                          crawler.crawl(url.getUrl());
+                          CrawlerInterface crawler = CrawlerFactory.createCrawler(url.getUrl());
+                          crawler.crawlJobsiteOneParameter(url.getUrl());
                       }
-                  } else {
+                } else {
                       throw new IllegalStateException("No search URLs configured");
-                  }
+                }
 
                 return null;
             }
@@ -298,12 +293,16 @@ public class MainScreenController {
             System.out.println("Abgebrochen");
             dialog.close();
             task.getException().printStackTrace();
-            alertInformation.showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal.");
+            alertInformation.showAlert("Fehler", task.getException().getMessage());
         });
 
         new Thread(task).start();
 
     }
+   /* @FXML
+    private void test() {
+
+    }*/
 
 }
 

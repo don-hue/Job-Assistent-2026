@@ -8,7 +8,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import java.util.Collections;
 import java.util.List;
-import org.hibernate.SessionFactory;
 
 public class JobRepository {
     private static final JobRepository INSTANCE = new JobRepository();
@@ -18,7 +17,7 @@ public class JobRepository {
         return INSTANCE;
     }
 
-    public void saveJobs(JobDto dto){
+    public void saveJob(JobDto dto){
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try( Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
@@ -33,6 +32,7 @@ public class JobRepository {
                     company = new CompanyEntity();
                     company.setCompanyName(dto.companyName());
                     company.setShowCompany(true);
+                    company.setUrl(dto.companyUrl());
                     session.persist(company);
                 }
 

@@ -11,7 +11,7 @@ public class SearchUrlEntity {
     @GeneratedValue
     private Long id;
 
-    @Column(unique = true)
+    @Column(unique = true, length = 2000)
     private String url ;
 
     public void setUrl(String url) {

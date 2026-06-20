@@ -1,6 +1,8 @@
 package org.ProjectX.Database;
 import org.ProjectX.entity.CompanyEntity;
+import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.util.HibernateUtil;
+import org.ProjectX.util.Utils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
