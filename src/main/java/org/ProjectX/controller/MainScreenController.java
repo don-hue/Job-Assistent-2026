@@ -189,7 +189,7 @@ public class MainScreenController {
                 "-fx-progress-color: #3B82F6;"
         );
         dialog.getDialogPane().setContent(progress);
-        //dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
 
         dialog.getDialogPane().setStyle(
                 "-fx-background-color: white;" +
