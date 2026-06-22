@@ -2,7 +2,6 @@ package org.ProjectX.factories.Alert;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import org.ProjectX.Database.CompanyRepository;
-import org.ProjectX.config.Constants;
 
 public class Confirmation implements AlertInterface {
      @Override

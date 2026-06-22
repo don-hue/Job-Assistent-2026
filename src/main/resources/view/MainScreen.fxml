@@ -23,7 +23,7 @@
              <TextFlow fx:id="textFlow" prefHeight="200.0" prefWidth="200.0" textAlignment="JUSTIFY" />
             <Button mnemonicParsing="false" onAction="#openSearchConfigDialog" text="Suche anlegen" />
             <Button mnemonicParsing="false" onAction="#crawlJobs" text="Seiten durchsuchen" />
-            <!--<Button mnemonicParsing="false" onAction="#test" text="Test Crawler" />-->
+            //<Button mnemonicParsing="false" onAction="#test" text="Test Crawler" />
             <Region prefHeight="471.0" prefWidth="200.0" VBox.vgrow="ALWAYS" />
             <Button mnemonicParsing="false" onAction="#loadJobs" text="Jobs anzeigen">
                <VBox.margin>

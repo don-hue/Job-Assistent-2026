@@ -28,6 +28,11 @@ import org.ProjectX.factories.Checkbox.CheckboxFactory;
 import org.ProjectX.factories.Checkbox.CheckboxInterface;
 import org.ProjectX.factories.Crawler.CrawlerFactory;
 import org.ProjectX.factories.Crawler.CrawlerInterface;
+import org.ProjectX.factories.Crawler.FinanzInformatik;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.awt.*;
 import java.io.IOException;
@@ -184,7 +189,7 @@ public class MainScreenController {
                 "-fx-progress-color: #3B82F6;"
         );
         dialog.getDialogPane().setContent(progress);
-        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+        //dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
 
         dialog.getDialogPane().setStyle(
                 "-fx-background-color: white;" +
@@ -261,48 +266,74 @@ public class MainScreenController {
     }
 
     @FXML
-    private void crawlJobs(){
-        createLoadingDialogUrl();
+        private void crawlJobs(){
+            createLoadingDialogUrl();
 
-        Task<Void> task = new Task<>() {
-            @Override
-            protected Void call() {
-                SearchUrlRepository db = SearchUrlRepository.getInstance();
-                List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
+            Task<Void> task = new Task<>() {
+                @Override
+                protected Void call() {
+                    SearchUrlRepository db = SearchUrlRepository.getInstance();
+                    List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
 
-                if(!searchUrls.isEmpty()) {
-                      for(SearchUrlEntity url :  searchUrls) {
-                          CrawlerInterface crawler = CrawlerFactory.createCrawler(url.getUrl());
-                          crawler.crawlJobsiteOneParameter(url.getUrl());
-                      }
-                } else {
-                      throw new IllegalStateException("No search URLs configured");
+                    if(!searchUrls.isEmpty()) {
+                        for(SearchUrlEntity url :  searchUrls) {
+                            CrawlerInterface crawler = CrawlerFactory.createCrawler(url.getUrl());
+                            if(crawler instanceof FinanzInformatik) {
+                                crawler.crawlJobsiteOneParameter(url.getKeyword());
+                            }
+                            crawler.crawlJobsiteOneParameter(url.getUrl());
+                        }
+
+
+                    } else {
+                          throw new IllegalStateException("No search URLs configured");
+                    }
+
+
+                    return null;
+                }
+            };
+
+            task.setOnSucceeded(_ -> {
+                System.out.println("Beendet");
+                dialog.close();
+                alertInformation.showAlert("Erfolgreich", "Die Suche war erfolgreich !");
+            });
+
+            task.setOnFailed(_ -> {
+                System.out.println("Abgebrochen");
+                dialog.close();
+                task.getException().printStackTrace();
+                alertInformation.showAlert("Fehler", task.getException().getMessage());
+            });
+
+            new Thread(task).start();
+
+        }
+    @FXML
+    private void test() {
+        /*try {
+            String url = "https://www.f-i.de/stellen-finden?FieldOfActivity[]=softwareentwicklung";
+            Document doc = Jsoup.connect(url).get();
+            Elements items = doc.select("div.list-row div.list-item");
+
+            for (Element item : items) {
+                if(item.text().toLowerCase().contains("java")) {
+                    System.out.println(item.text());
                 }
 
-                return null;
+                if(item.text().toLowerCase().contains("Fullstack")) {
+                    System.out.println(item.text());
+                }
+
             }
-        };
 
-        task.setOnSucceeded(_ -> {
-            System.out.println("Beendet");
-            dialog.close();
-            alertInformation.showAlert("Erfolgreich", "Die Suche war erfolgreich !");
-        });
-
-        task.setOnFailed(_ -> {
-            System.out.println("Abgebrochen");
-            dialog.close();
-            task.getException().printStackTrace();
-            alertInformation.showAlert("Fehler", task.getException().getMessage());
-        });
-
-        new Thread(task).start();
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage() );
+            throw new RuntimeException();
+        }*/
 
     }
-   /* @FXML
-    private void test() {
-
-    }*/
 
 }
 

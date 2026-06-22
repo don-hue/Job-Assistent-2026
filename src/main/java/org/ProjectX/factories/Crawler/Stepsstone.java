@@ -1,10 +1,10 @@
 package org.ProjectX.factories.Crawler;
 
-import org.ProjectX.Database.CompanyRepository;
+
 import org.ProjectX.Database.JobRepository;
 import org.ProjectX.dto.JobDto;
 import org.ProjectX.service.CrawlerService;
-import org.ProjectX.util.Utils;
+
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
 import org.jsoup.Jsoup;

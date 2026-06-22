@@ -6,7 +6,6 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import org.ProjectX.Database.JobRepository;
-import org.ProjectX.config.Constants;
 import org.ProjectX.factories.Alert.AlertFactory;
 import org.ProjectX.factories.Alert.AlertInterface;
 import org.ProjectX.factories.Alert.ConfirmationAlertFactory;

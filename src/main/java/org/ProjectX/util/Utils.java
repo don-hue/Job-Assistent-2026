@@ -1,8 +1,7 @@
 package org.ProjectX.util;
 
+import org.ProjectX.config.Constants;
 import org.htmlunit.WebClient;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
@@ -10,13 +9,7 @@ import tools.jackson.databind.node.ObjectNode;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Utils {
     private static final  Utils INSTANCE = new Utils();
@@ -42,7 +35,7 @@ public class Utils {
             webClient.getOptions().setCssEnabled(false);
 
             String url =
-                    "https://nominatim.openstreetmap.org/search"
+                    Constants.GEO_API
                             + "?postalcode=" + postalCode
                             + "&country=Germany"
                             + "&format=json";

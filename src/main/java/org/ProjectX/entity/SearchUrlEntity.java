@@ -14,6 +14,9 @@ public class SearchUrlEntity {
     @Column(unique = true, length = 2000)
     private String url ;
 
+    @Column
+    private String keyword;
+
     public void setUrl(String url) {
         this.url = url;
     }
@@ -22,5 +25,11 @@ public class SearchUrlEntity {
         return url;
     }
 
+    public void setKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+    public String getKeyword() {
+        return keyword;
+    }
 
 }
