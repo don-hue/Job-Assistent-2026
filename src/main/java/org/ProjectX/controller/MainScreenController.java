@@ -1,5 +1,6 @@
 package org.ProjectX.controller;
 
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -29,29 +30,32 @@ import org.ProjectX.factories.Checkbox.CheckboxInterface;
 import org.ProjectX.factories.Crawler.CrawlerFactory;
 import org.ProjectX.factories.Crawler.CrawlerInterface;
 import org.ProjectX.factories.Crawler.FinanzInformatik;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.awt.*;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
 
 public class MainScreenController {
     @FXML
-    private VBox cardContainer;
+    private VBox jobContainer;
+    @FXML
+    private VBox searchCardContainer;
     @FXML
     private TextFlow textFlow;
     @FXML
-    private ScrollPane centerScrollPane;
+    private ScrollPane jobScrollPane;
+    @FXML
+    private ScrollPane searchScrollPane;
+    @FXML
+            private TabPane tabPane;
     Dialog<Void> dialog = new Dialog<>();
 
     AlertFactory informationFactory = new InformationAlertFactory();
     AlertInterface alertInformation = informationFactory.createAlert();
-
     CheckboxFactory checkboxBanFactory = new BanCheckboxFactory();
     CheckboxInterface checkboxBanInterface = checkboxBanFactory.create();
     CheckboxFactory checkboxAppliedFactory = new AppliedCheckboxFactory();
@@ -59,12 +63,28 @@ public class MainScreenController {
 
     @FXML
     public void initialize() {
-        clipScrollPane();
+        clipJobScrollPane();
+        clipSearchScrollPane();
         tutorialText();
+
+        Platform.runLater(() -> {
+
+            Node header = tabPane.lookup(".tab-header-area");
+            Node headerBg = tabPane.lookup(".tab-header-background");
+
+            if (header != null) {
+                header.setStyle("-fx-background-color: #2FA084;");
+            }
+
+            if (headerBg != null) {
+                headerBg.setStyle("-fx-background-color: #2FA084;");
+            }
+        });
+
 
     }
 
-    private HBox createCard(String jobTitle, String company, URL url, boolean applied) {
+    private HBox createJobCard(String jobTitle, String company, URL url, boolean applied) {
         HBox card = new HBox(15);
         VBox content = createLabelsForCard(jobTitle, company, url);
         HBox checkboxContainer = checkboxBanInterface.createSpecificCheckbox(company,jobTitle, applied, this::loadJobs);
@@ -85,6 +105,27 @@ public class MainScreenController {
 
         return card;
     }
+    private HBox createSearchCard(String portal, String keyword, String url) {
+        HBox card = new HBox(15);
+        URL realURL;
+        try {
+            realURL = URI.create(url).toURL();
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
+        }
+        VBox content = createLabelsForCard(keyword, portal, realURL);
+        Region spacer = new Region();
+        card.setStyle(
+                "-fx-background-color:white;" +
+                        "-fx-padding: 15;" +
+                        "-fx-background-radius: 10;" +
+                        "-fx-effect: drop shadow(gaussian, rgba(0,0,0,0.15), 8,0,0,4);"
+        );
+        card.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        card.getChildren().addAll(content, spacer);
+        return card;
+    };
     private VBox createLabelsForCard(String jobTitle, String company, URL url) {
         VBox content = new VBox(5);
         Label title = new Label(jobTitle);
@@ -104,16 +145,27 @@ public class MainScreenController {
         content.getChildren().addAll(title, link);
         return content;
     }
-    private void clipScrollPane() {
+    private void clipJobScrollPane() {
         Rectangle clip = new Rectangle();
 
-        clip.widthProperty().bind(centerScrollPane.widthProperty());
-        clip.heightProperty().bind(centerScrollPane.heightProperty());
+        clip.widthProperty().bind(jobScrollPane.widthProperty());
+        clip.heightProperty().bind(jobScrollPane.heightProperty());
 
         clip.setArcWidth(42);
         clip.setArcHeight(42);
 
-        centerScrollPane.setClip(clip);
+        jobScrollPane.setClip(clip);
+    }
+    private void clipSearchScrollPane() {
+        Rectangle clip = new Rectangle();
+
+        clip.widthProperty().bind(searchScrollPane.widthProperty());
+        clip.heightProperty().bind(searchScrollPane.heightProperty());
+
+        clip.setArcWidth(42);
+        clip.setArcHeight(42);
+
+        searchScrollPane.setClip(clip);
     }
     private void tutorialText() {
         textFlow.setLineSpacing(5);
@@ -202,6 +254,37 @@ public class MainScreenController {
 
         dialog.show();
     }
+    private void createLoadingDialogSearch(){
+        dialog.setTitle("Bitte warten");
+        dialog.setHeaderText("Suchaufträge werden gesucht...");
+
+        Node header = dialog.getDialogPane().lookup(".header-panel");
+
+        if (header != null) {
+            header.setStyle(
+                    "-fx-background-color: white;" +
+                            "-fx-padding: 15;"
+            );
+        }
+
+        ProgressIndicator progress = new ProgressIndicator();
+        progress.setStyle(
+                "-fx-progress-color: #3B82F6;"
+        );
+        dialog.getDialogPane().setContent(progress);
+        dialog.getDialogPane().getButtonTypes().add(ButtonType.CANCEL);
+
+        dialog.getDialogPane().setStyle(
+                "-fx-background-color: white;" +
+                        "-fx-background-radius: 16;" +
+                        "-fx-border-radius: 16;" +
+                        "-fx-border-color: #E5E7EB;" +
+                        "-fx-border-width: 1;" +
+                        "-fx-padding: 20;"
+        );
+
+        dialog.show();
+    }
     @FXML
     private void openSearchConfigDialog() throws IOException {
         FXMLLoader loader = new FXMLLoader(
@@ -229,6 +312,16 @@ public class MainScreenController {
     @FXML
     private void loadJobs() {
         createLoadingDialogJobs();
+        taskLoadJob();
+    }
+
+    @FXML
+    private void loadSearches(){
+        createLoadingDialogSearch();
+        taskLoadSearch();
+    }
+
+    private void taskLoadJob() {
         Task<List<JobEntity>> task = new Task<>() {
             @Override
             protected List<JobEntity> call() {
@@ -239,12 +332,12 @@ public class MainScreenController {
 
         task.setOnSucceeded(_ -> {
             List<JobEntity> jobs = task.getValue();
-            cardContainer.getChildren().clear();
+            jobContainer.getChildren().clear();
 
 
             if(!jobs.isEmpty()) {
-                jobs.stream().map(job->createCard(job.getJobTitle(), job.getCompany().getCompanyName(),job.getCompany().getUrl(),job.getApplied()))
-                        .forEach(card -> cardContainer.getChildren().add(card));
+                jobs.stream().map(job-> createJobCard(job.getJobTitle(), job.getCompany().getCompanyName(),job.getCompany().getUrl(),job.getApplied()))
+                        .forEach(card -> jobContainer.getChildren().add(card));
                 System.out.println("Beendet");
                 dialog.close();
                 alertInformation.showAlert("Erfolgreich", "Jobs gefunden !");
@@ -252,6 +345,43 @@ public class MainScreenController {
                 System.out.println("Beendet");
                 dialog.close();
                 alertInformation.showAlert("Fehler", "Keine Jobs gefunden! Bitte lege eine Suche an");
+            }
+        });
+
+        task.setOnFailed(_ -> {
+            System.out.println("Abgebrochen");
+            task.getException().printStackTrace();
+            dialog.close();
+            alertInformation.showAlert("Fehler", "Keine Jobs gefunden. Bitte legen sie zuerst eine Suche an");
+        });
+
+        new Thread(task).start();
+    }
+
+    private void taskLoadSearch() {
+        Task<List<SearchUrlEntity>> task = new Task<>() {
+            @Override
+            protected List<SearchUrlEntity> call() {
+                SearchUrlRepository db = SearchUrlRepository.getInstance();
+                return db.getAllSearchUrls();
+            }
+        };
+
+        task.setOnSucceeded(_ -> {
+            List<SearchUrlEntity> searches = task.getValue();
+            searchCardContainer.getChildren().clear();
+
+
+            if(!searches.isEmpty()) {
+                searches.stream().map(search-> createSearchCard(search.getPortal(), search.getKeyword(),search.getUrl()))
+                        .forEach(card -> searchCardContainer.getChildren().add(card));
+                System.out.println("Beendet");
+                dialog.close();
+                alertInformation.showAlert("Erfolgreich", "Suchaufträge gefunden !");
+            } else {
+                System.out.println("Beendet");
+                dialog.close();
+                alertInformation.showAlert("Fehler", "Keine Suchaufträge gefunden! Bitte lege eine Suche an");
             }
         });
 
@@ -334,6 +464,5 @@ public class MainScreenController {
         }*/
 
     }
-
 }
 

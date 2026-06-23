@@ -17,10 +17,12 @@ public class SearchUrlEntity {
     @Column
     private String keyword;
 
+    @Column
+    private String portal;
+
     public void setUrl(String url) {
         this.url = url;
     }
-
     public String getUrl() {
         return url;
     }
@@ -31,5 +33,10 @@ public class SearchUrlEntity {
     public String getKeyword() {
         return keyword;
     }
+
+    public void setPortal( String portal) {
+        this.portal = portal;
+    }
+    public String getPortal(){return portal;}
 
 }

@@ -13,7 +13,6 @@ public class CompanyRepository {
     public static CompanyRepository getInstance() {
         return INSTANCE;
     }
-
     public void updateCompany(String company){
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try(Session session = sessionFactory.openSession()) {
