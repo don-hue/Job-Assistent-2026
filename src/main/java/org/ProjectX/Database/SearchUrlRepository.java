@@ -13,7 +13,7 @@ public class SearchUrlRepository {
         return INSTANCE;
     }
 
-    public void saveSearch(String url, String keyword) {
+    public void saveSearch(String url, String keyword, String portal) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try( Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
@@ -28,6 +28,7 @@ public class SearchUrlRepository {
                     urlDB = new SearchUrlEntity();
                     urlDB.setUrl(url);
                     urlDB.setKeyword(keyword);
+                    urlDB.setPortal(portal);
                     session.persist(urlDB);
                 }
 
@@ -58,6 +59,7 @@ public class SearchUrlRepository {
                     search = new SearchUrlEntity();
                     search.setUrl(api);
                     search.setKeyword(keyword);
+                    search.setPortal("Commerzbank");
                     session.persist(search);
                 }
                 tx.commit();

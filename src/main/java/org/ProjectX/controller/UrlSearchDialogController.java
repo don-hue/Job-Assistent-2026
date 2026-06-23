@@ -68,11 +68,11 @@ public class UrlSearchDialogController {
                 Utils utils = Utils.getInstance();
                 if(userUrl.getText().isEmpty()){
                     String url  = buildUrl();
-                    db.saveSearch(url,keywordField.getText());
+                    db.saveSearch(url,keywordField.getText(), portalBox.getValue());
                 }
 
                 if(!userUrl.getText().isEmpty() && utils.isValidURL(userUrl.getText())) {
-                    db.saveSearch(userUrl.getText(), "Custom URL used");
+                    db.saveSearch(userUrl.getText(), "Custom URL used", "Custom Portal");
                 }
 
                 String url = buildCommerzbankApiUrlNoGeo(
@@ -84,7 +84,7 @@ public class UrlSearchDialogController {
                         coordinates[0],
                         coordinates[1]
                 );
-                db.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText());
+                db.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik");
                 db.saveCommerzBankSearch(url, keywordField.getText());
                 return null;
             }
