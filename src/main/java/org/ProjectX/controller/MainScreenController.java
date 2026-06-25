@@ -6,6 +6,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.control.Button;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
@@ -53,7 +54,6 @@ public class MainScreenController {
     @FXML
             private TabPane tabPane;
     Dialog<Void> dialog = new Dialog<>();
-
     AlertFactory informationFactory = new InformationAlertFactory();
     AlertInterface alertInformation = informationFactory.createAlert();
     CheckboxFactory checkboxBanFactory = new BanCheckboxFactory();
@@ -105,8 +105,9 @@ public class MainScreenController {
 
         return card;
     }
-    private HBox createSearchCard(String portal, String keyword, String url) {
+    private HBox createSearchCard(String portal, String keyword, String url, String postalCode, String radius) {
         HBox card = new HBox(15);
+        VBox buttonContent = createButtonsForCard(portal, keyword,url,postalCode,radius);
         URL realURL;
         try {
             realURL = URI.create(url).toURL();
@@ -123,8 +124,31 @@ public class MainScreenController {
         );
         card.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        card.getChildren().addAll(content, spacer);
+        card.getChildren().addAll(content, spacer, buttonContent);
         return card;
+    };
+    private Button createEditButton(String portal, String keyword, String url, String postalCode, String radius){
+        Button button = new Button("Bearbeiten");
+        button.setPrefWidth(80);
+        button.setPrefHeight(20);
+        button.setOnAction(event -> {
+            try {
+                openEditSearchConfigDialog(portal, keyword,postalCode,radius);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        });
+            return button;
+    };
+    private Button createDeleteButton(String url ){
+        Button button = new Button("Löschen");
+        button.setStyle("-fx-background-color: #ffb3b3;");
+        button.setPrefWidth(80);
+        button.setPrefHeight(20);
+        button.setOnAction(event -> {
+                System.out.println("XXX");
+        });
+        return button;
     };
     private VBox createLabelsForCard(String jobTitle, String company, URL url) {
         VBox content = new VBox(5);
@@ -143,6 +167,14 @@ public class MainScreenController {
         });
 
         content.getChildren().addAll(title, link);
+        return content;
+    }
+    private VBox createButtonsForCard(String portal, String keyword, String url, String postalCode, String radius) {
+        VBox content = new VBox(5);
+        Button editButton = createEditButton(portal, keyword, url, postalCode, radius);
+        Button removeButton = createDeleteButton(url);
+
+        content.getChildren().addAll(editButton, removeButton);
         return content;
     }
     private void clipJobScrollPane() {
@@ -286,22 +318,41 @@ public class MainScreenController {
         dialog.show();
     }
     @FXML
-    private void openSearchConfigDialog() throws IOException {
+    private void openNewSearchConfigDialog() throws IOException {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view/UrlBuilderDialog.fxml"));
 
         Dialog<ButtonType> dialog = new Dialog<>();
         dialog.setTitle("Neue Jobsuche");
         dialog.getDialogPane().setContent(loader.load());
+        UrlSearchDialogController controller = loader.getController();
         dialog.getDialogPane().getButtonTypes().addAll(
                 ButtonType.OK,
                 ButtonType.CANCEL
         );
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            UrlSearchDialogController controller =
-                    loader.getController();
+            String generatedUrl = controller.buildUrl();
 
+            System.out.println(generatedUrl);
+        }
+    }
+    private void openEditSearchConfigDialog(String portal, String keyword, String postalCode, String radius) throws IOException {
+        FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/view/UrlBuilderDialog.fxml"));
+
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Suche bearbeiten");
+        dialog.getDialogPane().setContent(loader.load());
+        UrlSearchDialogController controller = loader.getController();
+        controller.editSearch(portal,keyword, postalCode, radius);
+        dialog.getDialogPane().getButtonTypes().addAll(
+                ButtonType.OK,
+                ButtonType.CANCEL
+        );
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
             String generatedUrl = controller.buildUrl();
 
             System.out.println(generatedUrl);
@@ -370,10 +421,8 @@ public class MainScreenController {
         task.setOnSucceeded(_ -> {
             List<SearchUrlEntity> searches = task.getValue();
             searchCardContainer.getChildren().clear();
-
-
             if(!searches.isEmpty()) {
-                searches.stream().map(search-> createSearchCard(search.getPortal(), search.getKeyword(),search.getUrl()))
+                searches.stream().map(search-> createSearchCard(search.getPortal(), search.getKeyword(),search.getUrl(),search.getPostal_code(),search.getRadius()))
                         .forEach(card -> searchCardContainer.getChildren().add(card));
                 System.out.println("Beendet");
                 dialog.close();

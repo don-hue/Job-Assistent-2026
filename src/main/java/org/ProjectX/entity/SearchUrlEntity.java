@@ -19,6 +19,10 @@ public class SearchUrlEntity {
 
     @Column
     private String portal;
+    @Column
+    private String postal_code;
+    @Column
+    private String radius;
 
     public void setUrl(String url) {
         this.url = url;
@@ -39,4 +43,13 @@ public class SearchUrlEntity {
     }
     public String getPortal(){return portal;}
 
+    public void setPostal_code(String postalCode) {
+        this.postal_code = postalCode;
+    }
+    public String getPostal_code(){return postal_code;}
+
+    public void setRadius(String radius) {
+        this.radius = radius;
+    }
+    public String getRadius() {return radius;}
 }

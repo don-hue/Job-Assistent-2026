@@ -6,14 +6,9 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import org.ProjectX.Database.JobRepository;
-import org.ProjectX.factories.Alert.AlertFactory;
-import org.ProjectX.factories.Alert.AlertInterface;
-import org.ProjectX.factories.Alert.ConfirmationAlertFactory;
+
 
 public class Applied implements CheckboxInterface {
-    AlertFactory confirmationFactory =new ConfirmationAlertFactory();
-    AlertInterface confirmationAlert = confirmationFactory.createAlert();
-
     public HBox createSpecificCheckbox(String company, String jobTitle,boolean applied, Runnable action) {
         HBox checkboxContainer = new HBox(5);
         CheckBox checkbox = new CheckBox();

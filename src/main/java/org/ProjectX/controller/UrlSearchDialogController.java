@@ -5,6 +5,8 @@ import javafx.scene.control.*;
 import org.ProjectX.Database.SearchUrlRepository;
 import org.ProjectX.config.Constants;
 import org.ProjectX.util.Utils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -12,6 +14,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class UrlSearchDialogController {
+    private static final Log log = LogFactory.getLog(UrlSearchDialogController.class);
     Utils utils = Utils.getInstance();
     @FXML
     private ComboBox<String> portalBox;
@@ -68,11 +71,11 @@ public class UrlSearchDialogController {
                 Utils utils = Utils.getInstance();
                 if(userUrl.getText().isEmpty()){
                     String url  = buildUrl();
-                    db.saveSearch(url,keywordField.getText(), portalBox.getValue());
+                    db.saveSearch(url,keywordField.getText(), portalBox.getValue(),locationField.getText(),radiusBox.getValue());
                 }
 
                 if(!userUrl.getText().isEmpty() && utils.isValidURL(userUrl.getText())) {
-                    db.saveSearch(userUrl.getText(), "Custom URL used", "Custom Portal");
+                    db.saveSearch(userUrl.getText(), "Custom URL used", "Custom", "Custom", "Custom");
                 }
 
                 String url = buildCommerzbankApiUrlNoGeo(
@@ -84,7 +87,7 @@ public class UrlSearchDialogController {
                         coordinates[0],
                         coordinates[1]
                 );
-                db.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik");
+                db.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik","Custom","Custom");
                 db.saveCommerzBankSearch(url, keywordField.getText());
                 return null;
             }
@@ -165,6 +168,26 @@ public class UrlSearchDialogController {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void editSearch(String portal, String keyword, String postalCode, String radius) {
+        portalBox.getItems().removeAll();
+        portalBox.getItems().add(portal);
+        portalBox.setValue(portal);
+        keywordField.setText(keyword);
+        userUrl.setDisable(true);
+        if(portal.toLowerCase().contains("stepstone")) {
+            locationField.setText(postalCode);
+            radiusBox.setValue(radius);
+        } else {
+            locationField.setText("");
+            locationField.setDisable(true);
+            radiusBox.setValue("");
+            radiusBox.setDisable(true);
+
+        }
+
+
     }
 
 

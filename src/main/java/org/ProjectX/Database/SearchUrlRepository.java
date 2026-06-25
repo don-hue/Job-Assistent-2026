@@ -13,7 +13,7 @@ public class SearchUrlRepository {
         return INSTANCE;
     }
 
-    public void saveSearch(String url, String keyword, String portal) {
+    public void saveSearch(String url, String keyword, String portal, String portalCode, String radius) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try( Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
@@ -29,6 +29,8 @@ public class SearchUrlRepository {
                     urlDB.setUrl(url);
                     urlDB.setKeyword(keyword);
                     urlDB.setPortal(portal);
+                    urlDB.setPostal_code(portalCode);
+                    urlDB.setRadius(radius);
                     session.persist(urlDB);
                 }
 
