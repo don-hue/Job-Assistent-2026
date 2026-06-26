@@ -19,11 +19,13 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import org.ProjectX.Database.JobRepository;
 import org.ProjectX.Database.SearchUrlRepository;
+import org.ProjectX.config.Constants;
 import org.ProjectX.entity.JobEntity;
 import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.factories.Alert.AlertFactory;
 import org.ProjectX.factories.Alert.AlertInterface;
 import org.ProjectX.factories.Alert.InformationAlertFactory;
+import org.ProjectX.factories.Alert.SearchDeletionAlertFactory;
 import org.ProjectX.factories.Checkbox.AppliedCheckboxFactory;
 import org.ProjectX.factories.Checkbox.BanCheckboxFactory;
 import org.ProjectX.factories.Checkbox.CheckboxFactory;
@@ -56,6 +58,8 @@ public class MainScreenController {
     Dialog<Void> dialog = new Dialog<>();
     AlertFactory informationFactory = new InformationAlertFactory();
     AlertInterface alertInformation = informationFactory.createAlert();
+    AlertFactory searchDeletionFactory = new SearchDeletionAlertFactory();
+    AlertInterface alertSearchDeletion = searchDeletionFactory.createAlert();
     CheckboxFactory checkboxBanFactory = new BanCheckboxFactory();
     CheckboxInterface checkboxBanInterface = checkboxBanFactory.create();
     CheckboxFactory checkboxAppliedFactory = new AppliedCheckboxFactory();
@@ -87,8 +91,8 @@ public class MainScreenController {
     private HBox createJobCard(String jobTitle, String company, URL url, boolean applied) {
         HBox card = new HBox(15);
         VBox content = createLabelsForCard(jobTitle, company, url);
-        HBox checkboxContainer = checkboxBanInterface.createSpecificCheckbox(company,jobTitle, applied, this::loadJobs);
-        HBox checkboxContainer2 = checkboxAppliedInterface.createSpecificCheckbox(company,jobTitle,applied, this::loadJobs);
+        HBox checkboxContainer = checkboxBanInterface.createSpecificCheckbox(company,jobTitle, applied, this::taskLoadJob);
+        HBox checkboxContainer2 = checkboxAppliedInterface.createSpecificCheckbox(company,jobTitle,applied, this::taskLoadJob);
         Region spacer = new Region();
         String bgColor = applied
                 ? "lightgray"
@@ -96,8 +100,8 @@ public class MainScreenController {
         card.setStyle(
                         "-fx-background-color:"  + bgColor + ";" +
                         "-fx-padding: 15;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-effect: drop shadow(gaussian, rgba(0,0,0,0.15), 8,0,0,4);"
+                        "-fx-background-radius: 10;"
+
         );
         card.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -119,8 +123,7 @@ public class MainScreenController {
         card.setStyle(
                 "-fx-background-color:white;" +
                         "-fx-padding: 15;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-effect: drop shadow(gaussian, rgba(0,0,0,0.15), 8,0,0,4);"
+                        "-fx-background-radius: 10;"
         );
         card.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(spacer, Priority.ALWAYS);
@@ -146,7 +149,7 @@ public class MainScreenController {
         button.setPrefWidth(80);
         button.setPrefHeight(20);
         button.setOnAction(event -> {
-                System.out.println("XXX");
+               alertSearchDeletion.showAlertDeleteSearch(Constants.DELETE_SEARCH_TITLE, Constants.DELETE_SEARCH_HEADER, Constants.DELETE_SEARCH_TEXT, url, this::taskLoadSearch);
         });
         return button;
     };

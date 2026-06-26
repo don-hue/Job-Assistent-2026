@@ -184,7 +184,6 @@ public class UrlSearchDialogController {
             locationField.setDisable(true);
             radiusBox.setValue("");
             radiusBox.setDisable(true);
-
         }
 
 

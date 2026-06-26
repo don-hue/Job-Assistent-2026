@@ -94,4 +94,18 @@ public class SearchUrlRepository {
             throw e;
         }
     }
+    public void deleteSearch(String url) {
+        SessionFactory factory = HibernateUtil.getSessionFactory();
+        try(Session session = factory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            session.createMutationQuery("DELETE FROM SearchUrlEntity WHERE url = :url")
+                    .setParameter("url", url)
+                    .executeUpdate();
+            tx.commit();
+
+        } catch(Exception e) {
+            System.out.println("Error" + e.getMessage());
+            throw e;
+        }
+    }
 }
