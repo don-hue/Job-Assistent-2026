@@ -1,4 +1,4 @@
-package org.ProjectX.Database;
+package org.ProjectX.database;
 import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.util.HibernateUtil;
 import org.hibernate.Session;
@@ -13,7 +13,7 @@ public class SearchUrlRepository {
         return INSTANCE;
     }
 
-    public void saveSearch(String url, String keyword, String portal, String portalCode, String radius) {
+    public void saveSearch(String url, String keyword, String portal, String portalCode, String radius, boolean isCustom) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try( Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
@@ -31,6 +31,7 @@ public class SearchUrlRepository {
                     urlDB.setPortal(portal);
                     urlDB.setPostal_code(portalCode);
                     urlDB.setRadius(radius);
+                    urlDB.setIsCustom(isCustom);
                     session.persist(urlDB);
                 }
 
@@ -62,6 +63,7 @@ public class SearchUrlRepository {
                     search.setUrl(api);
                     search.setKeyword(keyword);
                     search.setPortal("Commerzbank");
+                    search.setIsCustom(false);
                     session.persist(search);
                 }
                 tx.commit();
@@ -107,5 +109,35 @@ public class SearchUrlRepository {
             System.out.println("Error" + e.getMessage());
             throw e;
         }
+    }
+    public void updateSearch( String keyword,String postalCode, String radius, Long id){
+        SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
+        try( Session session = sessionFactory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            try {
+                SearchUrlEntity entity = session.get(SearchUrlEntity.class, id);
+                if(entity != null && keyword != null) {
+                    entity.setKeyword(keyword);
+                }
+                if(entity != null && radius != null) {
+                    entity.setRadius(radius);
+                }
+                if(entity != null && postalCode != null) {
+                    entity.setPostal_code(postalCode);
+                }
+                tx.commit();
+
+            } catch (Exception e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                System.out.println("Error" + e.getMessage());
+                throw e;
+            }
+
+        } catch (Exception e) {
+            System.out.println("Error" + e.getMessage());
+        }
+
     }
 }

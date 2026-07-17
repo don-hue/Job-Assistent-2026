@@ -2,11 +2,11 @@ package org.ProjectX.controller;
 import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import org.ProjectX.Database.SearchUrlRepository;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+import org.ProjectX.database.SearchUrlRepository;
 import org.ProjectX.config.Constants;
 import org.ProjectX.util.Utils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
@@ -14,8 +14,13 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
 public class UrlSearchDialogController {
-    private static final Log log = LogFactory.getLog(UrlSearchDialogController.class);
+
     Utils utils = Utils.getInstance();
+
+    @FXML
+    private HBox buttonHbox;
+    @FXML
+    private VBox urlVbox;
     @FXML
     private ComboBox<String> portalBox;
 
@@ -71,11 +76,11 @@ public class UrlSearchDialogController {
                 Utils utils = Utils.getInstance();
                 if(userUrl.getText().isEmpty()){
                     String url  = buildUrl();
-                    db.saveSearch(url,keywordField.getText(), portalBox.getValue(),locationField.getText(),radiusBox.getValue());
+                    db.saveSearch(url,keywordField.getText(), portalBox.getValue(),locationField.getText(),radiusBox.getValue(), false);
                 }
 
                 if(!userUrl.getText().isEmpty() && utils.isValidURL(userUrl.getText())) {
-                    db.saveSearch(userUrl.getText(), "Custom URL used", "Custom", "Custom", "Custom");
+                    db.saveSearch(userUrl.getText(), "Custom URL used", "Custom", "Custom", "Custom",true);
                 }
 
                 String url = buildCommerzbankApiUrlNoGeo(
@@ -87,12 +92,13 @@ public class UrlSearchDialogController {
                         coordinates[0],
                         coordinates[1]
                 );
-                db.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik","Custom","Custom");
+                db.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik","Custom","Custom",false);
                 db.saveCommerzBankSearch(url, keywordField.getText());
                 return null;
             }
         };
 
+        //ToDo : hier muss ein update der ui kommen
         task.setOnSucceeded( _ -> {
             showAlert("Erfolgreich", "Die Suche wurde gespeichert !");
         });
@@ -170,12 +176,19 @@ public class UrlSearchDialogController {
         }
     }
 
-    public void editSearch(String portal, String keyword, String postalCode, String radius) {
+    public void editSearch(String portal, String keyword, String postalCode, String radius, boolean isCustom) {
         portalBox.getItems().removeAll();
         portalBox.getItems().add(portal);
+        portalBox.setDisable(true);
         portalBox.setValue(portal);
         keywordField.setText(keyword);
         userUrl.setDisable(true);
+        buttonHbox.setVisible(false);
+
+        if(!isCustom) {
+            urlVbox.setVisible(false);
+        }
+
         if(portal.toLowerCase().contains("stepstone")) {
             locationField.setText(postalCode);
             radiusBox.setValue(radius);
@@ -185,8 +198,6 @@ public class UrlSearchDialogController {
             radiusBox.setValue("");
             radiusBox.setDisable(true);
         }
-
-
     }
 
 
@@ -196,5 +207,32 @@ public class UrlSearchDialogController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+    public void updateSearch(Long id, Runnable action){
+
+        Task<Void> task = new Task<>(){
+            @Override
+            protected Void call(){
+                SearchUrlRepository db = SearchUrlRepository.getInstance();
+                db.updateSearch(keywordField.getText(),locationField.getText(),radiusBox.getValue(), id);
+                return null;
+            };
+        };
+        task.setOnSucceeded( _ -> {
+            action.run();
+        });
+
+        task.setOnFailed(_ -> {
+            showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal.");
+        });
+
+        new Thread(task).start();
+
+    };
+
+    public void test(){
+        System.out.println("XXX keyword" + keywordField.getText());
+        System.out.println("XXX location" + locationField.getText());
+        System.out.println("XXX radius" + radiusBox.getValue());
     }
 }

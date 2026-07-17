@@ -1,5 +1,5 @@
 package org.ProjectX.factories.Crawler;
-import org.ProjectX.Database.JobRepository;
+import org.ProjectX.database.JobRepository;
 import org.ProjectX.config.Constants;
 import org.ProjectX.dto.JobDto;
 import org.ProjectX.service.CrawlerService;

@@ -17,8 +17,8 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
-import org.ProjectX.Database.JobRepository;
-import org.ProjectX.Database.SearchUrlRepository;
+import org.ProjectX.database.JobRepository;
+import org.ProjectX.database.SearchUrlRepository;
 import org.ProjectX.config.Constants;
 import org.ProjectX.entity.JobEntity;
 import org.ProjectX.entity.SearchUrlEntity;
@@ -109,9 +109,9 @@ public class MainScreenController {
 
         return card;
     }
-    private HBox createSearchCard(String portal, String keyword, String url, String postalCode, String radius) {
+    private HBox createSearchCard(String portal, String keyword, String url, String postalCode, String radius, boolean isCustom, Long id) {
         HBox card = new HBox(15);
-        VBox buttonContent = createButtonsForCard(portal, keyword,url,postalCode,radius);
+        VBox buttonContent = createButtonsForCard(portal, keyword,url,postalCode,radius,isCustom, id);
         URL realURL;
         try {
             realURL = URI.create(url).toURL();
@@ -130,13 +130,13 @@ public class MainScreenController {
         card.getChildren().addAll(content, spacer, buttonContent);
         return card;
     };
-    private Button createEditButton(String portal, String keyword, String url, String postalCode, String radius){
+    private Button createEditButton(String portal, String keyword, String url, String postalCode, String radius, boolean isCustom, Long id){
         Button button = new Button("Bearbeiten");
         button.setPrefWidth(80);
         button.setPrefHeight(20);
         button.setOnAction(event -> {
             try {
-                openEditSearchConfigDialog(portal, keyword,postalCode,radius);
+                openEditSearchConfigDialog(url,portal, keyword,postalCode,radius,isCustom,id);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -172,9 +172,9 @@ public class MainScreenController {
         content.getChildren().addAll(title, link);
         return content;
     }
-    private VBox createButtonsForCard(String portal, String keyword, String url, String postalCode, String radius) {
+    private VBox createButtonsForCard(String portal, String keyword, String url, String postalCode, String radius, boolean isCustom,Long id) {
         VBox content = new VBox(5);
-        Button editButton = createEditButton(portal, keyword, url, postalCode, radius);
+        Button editButton = createEditButton(portal, keyword, url, postalCode, radius,isCustom,id);
         Button removeButton = createDeleteButton(url);
 
         content.getChildren().addAll(editButton, removeButton);
@@ -340,7 +340,7 @@ public class MainScreenController {
             System.out.println(generatedUrl);
         }
     }
-    private void openEditSearchConfigDialog(String portal, String keyword, String postalCode, String radius) throws IOException {
+    private void openEditSearchConfigDialog(String url,String portal, String keyword, String postalCode, String radius, boolean isCustom, Long id) throws IOException {
         FXMLLoader loader = new FXMLLoader(
                 getClass().getResource("/view/UrlBuilderDialog.fxml"));
 
@@ -348,7 +348,7 @@ public class MainScreenController {
         dialog.setTitle("Suche bearbeiten");
         dialog.getDialogPane().setContent(loader.load());
         UrlSearchDialogController controller = loader.getController();
-        controller.editSearch(portal,keyword, postalCode, radius);
+        controller.editSearch(portal,keyword, postalCode, radius, isCustom);
         dialog.getDialogPane().getButtonTypes().addAll(
                 ButtonType.OK,
                 ButtonType.CANCEL
@@ -356,9 +356,7 @@ public class MainScreenController {
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            String generatedUrl = controller.buildUrl();
-
-            System.out.println(generatedUrl);
+            controller.updateSearch(id, this::loadSearches);
         }
     }
 
@@ -425,7 +423,7 @@ public class MainScreenController {
             List<SearchUrlEntity> searches = task.getValue();
             searchCardContainer.getChildren().clear();
             if(!searches.isEmpty()) {
-                searches.stream().map(search-> createSearchCard(search.getPortal(), search.getKeyword(),search.getUrl(),search.getPostal_code(),search.getRadius()))
+                searches.stream().map(search-> createSearchCard(search.getPortal(), search.getKeyword(),search.getUrl(),search.getPostal_code(),search.getRadius(),search.getIsCustom(),search.getId()))
                         .forEach(card -> searchCardContainer.getChildren().add(card));
                 System.out.println("Beendet");
                 dialog.close();

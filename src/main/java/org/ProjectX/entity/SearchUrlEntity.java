@@ -23,6 +23,8 @@ public class SearchUrlEntity {
     private String postal_code;
     @Column
     private String radius;
+    @Column
+    private Boolean isCustom;
 
     public void setUrl(String url) {
         this.url = url;
@@ -52,4 +54,12 @@ public class SearchUrlEntity {
         this.radius = radius;
     }
     public String getRadius() {return radius;}
+    public void setIsCustom(boolean isCustom) {
+        this.isCustom = isCustom;
+    }
+    public boolean getIsCustom(){
+        return isCustom;
+    }
+
+    public Long getId(){return id;}
 }

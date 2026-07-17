@@ -1,4 +1,4 @@
-package org.ProjectX.Database;
+package org.ProjectX.database;
 import org.ProjectX.dto.JobDto;
 import org.ProjectX.entity.CompanyEntity;
 import org.ProjectX.entity.JobEntity;

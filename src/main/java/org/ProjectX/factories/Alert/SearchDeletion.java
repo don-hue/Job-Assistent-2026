@@ -2,8 +2,7 @@ package org.ProjectX.factories.Alert;
 
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import org.ProjectX.Database.CompanyRepository;
-import org.ProjectX.Database.SearchUrlRepository;
+import org.ProjectX.database.SearchUrlRepository;
 
 public class SearchDeletion implements AlertInterface{
     public void showAlertDeleteSearch(String title, String header, String text, String url, Runnable action){

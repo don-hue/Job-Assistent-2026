@@ -5,7 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
-import org.ProjectX.Database.JobRepository;
+import org.ProjectX.database.JobRepository;
 
 
 public class Applied implements CheckboxInterface {

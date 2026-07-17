@@ -8,8 +8,8 @@ import javafx.scene.Scene;
 import javafx.event.ActionEvent;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
-
 import java.io.IOException;
+
 
 public class WelcomeScreenController {
 
