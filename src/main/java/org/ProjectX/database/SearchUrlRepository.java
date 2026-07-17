@@ -8,7 +8,7 @@ import java.util.List;
 
 public class SearchUrlRepository {
     private static final SearchUrlRepository INSTANCE = new SearchUrlRepository();
-    private SearchUrlRepository() {};
+    private SearchUrlRepository() {}
     public static SearchUrlRepository getInstance() {
         return INSTANCE;
     }

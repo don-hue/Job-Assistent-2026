@@ -11,7 +11,7 @@ import java.util.List;
 
 public class JobRepository {
     private static final JobRepository INSTANCE = new JobRepository();
-    private JobRepository(){};
+    private JobRepository(){}
 
     public static JobRepository getInstance() {
         return INSTANCE;

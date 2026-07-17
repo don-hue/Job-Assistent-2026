@@ -58,9 +58,9 @@
 
     <HBox fx:id="buttonHbox" alignment="CENTER_RIGHT" spacing="10">
 
-        <Button fx:id="cancelButton" text="Abbrechen" onAction="#cancelUrl" />
+        <Button text="Abbrechen" onAction="#cancelUrl" />
 
-        <Button fx:id="saveButton" defaultButton="true" onAction="#saveUrl" text="Speichern" />
+        <Button defaultButton="true" onAction="#saveUrl" text="Speichern" />
 
     </HBox>
 

@@ -129,7 +129,7 @@ public class MainScreenController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         card.getChildren().addAll(content, spacer, buttonContent);
         return card;
-    };
+    }
     private Button createEditButton(String portal, String keyword, String url, String postalCode, String radius, boolean isCustom, Long id){
         Button button = new Button("Bearbeiten");
         button.setPrefWidth(80);
@@ -142,7 +142,7 @@ public class MainScreenController {
             }
         });
             return button;
-    };
+    }
     private Button createDeleteButton(String url ){
         Button button = new Button("Löschen");
         button.setStyle("-fx-background-color: #ffb3b3;");

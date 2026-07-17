@@ -47,10 +47,10 @@ public class Stepsstone implements CrawlerInterface{
             }
         }
 
-    };
+    }
     //crawls Jobpage of a company
     public URL getJobsiteWithUrl(String companyName) {
-        try( WebClient webClient = new WebClient();) {
+        try( WebClient webClient = new WebClient()) {
             webClient.getOptions().setJavaScriptEnabled(true);
             webClient.getOptions().setCssEnabled(false);
             webClient.addRequestHeader(
@@ -79,5 +79,5 @@ public class Stepsstone implements CrawlerInterface{
                 Thread.currentThread().interrupt();
             }
         }
-    };
+    }
 }

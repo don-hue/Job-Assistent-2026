@@ -99,13 +99,9 @@ public class UrlSearchDialogController {
         };
 
         //ToDo : hier muss ein update der ui kommen
-        task.setOnSucceeded( _ -> {
-            showAlert("Erfolgreich", "Die Suche wurde gespeichert !");
-        });
+        task.setOnSucceeded( _ -> showAlert("Erfolgreich", "Die Suche wurde gespeichert !"));
 
-        task.setOnFailed(_ -> {
-            showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal.");
-        });
+        task.setOnFailed(_ -> showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal."));
 
         new Thread(task).start();
     }
@@ -218,13 +214,9 @@ public class UrlSearchDialogController {
                 return null;
             };
         };
-        task.setOnSucceeded( _ -> {
-            action.run();
-        });
+        task.setOnSucceeded( _ -> action.run());
 
-        task.setOnFailed(_ -> {
-            showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal.");
-        });
+        task.setOnFailed(_ -> showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal."));
 
         new Thread(task).start();
 
