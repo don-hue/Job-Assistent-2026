@@ -2,6 +2,7 @@ package org.ProjectX.database;
 import org.ProjectX.dto.JobDto;
 import org.ProjectX.entity.CompanyEntity;
 import org.ProjectX.entity.JobEntity;
+import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -117,6 +118,27 @@ public class JobRepository {
             }
         }catch (Exception e) {
             System.out.println("Error" + e.getMessage());
+        }
+    }
+    public void deleteJobsBySearchId(Long id) {
+        SessionFactory factory = HibernateUtil.getSessionFactory();
+        try(Session session = factory.openSession()) {
+            Transaction tx = session.beginTransaction();
+            try {
+                session.createMutationQuery("DELETE FROM JobEntity WHERE search.id = :id")
+                        .setParameter("id", id)
+                        .executeUpdate();
+                tx.commit();
+            } catch (RuntimeException e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                System.out.println("Error" + e.getMessage());
+                throw e;
+            }
+        } catch (Exception e) {
+            System.out.println("Error" + e.getMessage());
+
         }
     }
 }

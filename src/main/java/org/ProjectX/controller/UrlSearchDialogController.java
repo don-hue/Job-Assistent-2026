@@ -4,6 +4,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import org.ProjectX.database.JobRepository;
 import org.ProjectX.database.SearchUrlRepository;
 import org.ProjectX.config.Constants;
 import org.ProjectX.util.Utils;
@@ -16,6 +17,8 @@ import java.nio.charset.StandardCharsets;
 public class UrlSearchDialogController {
 
     Utils utils = Utils.getInstance();
+    SearchUrlRepository searchDB = SearchUrlRepository.getInstance();
+    JobRepository jobDB = JobRepository.getInstance();
 
     @FXML
     private HBox buttonHbox;
@@ -71,16 +74,16 @@ public class UrlSearchDialogController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
-                SearchUrlRepository db = SearchUrlRepository.getInstance();
+
                 double[] coordinates = utils.getGeoData(locationField.getText());
                 Utils utils = Utils.getInstance();
                 if(userUrl.getText().isEmpty()){
                     String url  = buildUrl();
-                    db.saveSearch(url,keywordField.getText(), portalBox.getValue(),locationField.getText(),radiusBox.getValue(), false);
+                    searchDB.saveSearch(url,keywordField.getText(), portalBox.getValue(),locationField.getText(),radiusBox.getValue(), false);
                 }
 
                 if(!userUrl.getText().isEmpty() && utils.isValidURL(userUrl.getText())) {
-                    db.saveSearch(userUrl.getText(), "Custom URL used", "Custom", "Custom", "Custom",true);
+                    searchDB.saveSearch(userUrl.getText(), "Custom URL used", "Custom", "Custom", "Custom",true);
                 }
 
                 String url = buildCommerzbankApiUrlNoGeo(
@@ -92,8 +95,8 @@ public class UrlSearchDialogController {
                         coordinates[0],
                         coordinates[1]
                 );
-                db.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik","Custom","Custom",false);
-                db.saveCommerzBankSearch(url, keywordField.getText());
+                searchDB.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik","Custom","Custom",false);
+                searchDB.saveCommerzBankSearch(url, keywordField.getText());
                 return null;
             }
         };
@@ -209,8 +212,8 @@ public class UrlSearchDialogController {
         Task<Void> task = new Task<>(){
             @Override
             protected Void call(){
-                SearchUrlRepository db = SearchUrlRepository.getInstance();
-                db.updateSearch(keywordField.getText(),locationField.getText(),radiusBox.getValue(), id);
+                searchDB.updateSearch(keywordField.getText(),locationField.getText(),radiusBox.getValue(), id);
+                jobDB.deleteJobsBySearchId(id);
                 return null;
             };
         };

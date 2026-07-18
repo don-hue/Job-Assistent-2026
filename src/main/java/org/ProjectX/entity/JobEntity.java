@@ -17,6 +17,10 @@ public class JobEntity {
     @JoinColumn(name="company_id")
     private CompanyEntity company;
 
+    @ManyToOne
+    @JoinColumn(name="search_id")
+    private SearchUrlEntity search;
+
     public String getJobTitle() {
         return jobTitle;
     }
@@ -39,5 +43,9 @@ public class JobEntity {
 
     public boolean getApplied(){
         return this.applied;
+    }
+
+    public SearchUrlEntity getSearch() {
+        return search;
     }
 }

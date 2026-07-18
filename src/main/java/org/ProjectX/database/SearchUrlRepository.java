@@ -84,13 +84,20 @@ public class SearchUrlRepository {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try (Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
+            try {
+                List<SearchUrlEntity> urls = session
+                        .createQuery("FROM SearchUrlEntity", SearchUrlEntity.class)
+                        .getResultList();
 
-            List<SearchUrlEntity> urls = session
-                    .createQuery("FROM SearchUrlEntity", SearchUrlEntity.class)
-                    .getResultList();
-
-            tx.commit();
-            return urls;
+                tx.commit();
+                return urls;
+            } catch (RuntimeException e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                System.out.println("Error" + e.getMessage());
+                throw e;
+            }
         } catch (Exception e) {
             System.out.println("Error" + e.getMessage());
             throw e;
@@ -100,11 +107,18 @@ public class SearchUrlRepository {
         SessionFactory factory = HibernateUtil.getSessionFactory();
         try(Session session = factory.openSession()) {
             Transaction tx = session.beginTransaction();
-            session.createMutationQuery("DELETE FROM SearchUrlEntity WHERE url = :url")
-                    .setParameter("url", url)
-                    .executeUpdate();
-            tx.commit();
-
+            try {
+                session.createMutationQuery("DELETE FROM SearchUrlEntity WHERE url = :url")
+                        .setParameter("url", url)
+                        .executeUpdate();
+                tx.commit();
+            } catch (RuntimeException e) {
+                if (tx != null && tx.isActive()) {
+                    tx.rollback();
+                }
+                System.out.println("Error" + e.getMessage());
+                throw e;
+            }
         } catch(Exception e) {
             System.out.println("Error" + e.getMessage());
             throw e;
