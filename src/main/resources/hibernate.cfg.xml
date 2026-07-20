@@ -20,7 +20,7 @@
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- Show SQL in console -->
-        <property name="hibernate.show_sql">false</property>
+        <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
 
         <!-- Entities -->
