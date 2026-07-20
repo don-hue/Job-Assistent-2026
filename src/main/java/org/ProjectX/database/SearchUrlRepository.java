@@ -17,7 +17,6 @@ public class SearchUrlRepository {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try( Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
-
             try {
                 SearchUrlEntity urlDB = session
                         .createQuery("FROM SearchUrlEntity WHERE url = :url", SearchUrlEntity.class)
@@ -34,6 +33,7 @@ public class SearchUrlRepository {
                     urlDB.setIsCustom(isCustom);
                     session.persist(urlDB);
                 }
+
 
                 tx.commit();
 

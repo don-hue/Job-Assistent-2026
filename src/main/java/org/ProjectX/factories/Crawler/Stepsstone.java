@@ -3,6 +3,7 @@ package org.ProjectX.factories.Crawler;
 
 import org.ProjectX.database.JobRepository;
 import org.ProjectX.dto.JobDto;
+import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.service.CrawlerService;
 
 import org.htmlunit.WebClient;
@@ -22,7 +23,7 @@ public class Stepsstone implements CrawlerInterface{
     JobRepository jobDb = JobRepository.getInstance();
 
     //crawls Stepstonepage for Jobs
-    public void crawlJobsiteOneParameter(String url){
+    /*public void crawlJobsiteOneParameter(String url){
         int pages = util.howManyPages(url);
         for (int i = 1; i < pages + 1 ; i++) {
             try {
@@ -38,6 +39,33 @@ public class Stepsstone implements CrawlerInterface{
                     if (jobDiv != null && companyDiv!=null) {
                         URL companyUrl = getJobsiteWithUrl(companyDiv.text());
                         JobDto dto = new JobDto(jobDiv.text(), companyDiv.text(), companyUrl);
+                        jobDb.saveJob(dto);
+                    }
+                }
+            } catch (IOException e) {
+                System.out.println("Error: " + e.getMessage() );
+                throw new RuntimeException();
+            }
+        }
+
+    }*/
+
+    public void crawlJobsiteTwoParameter(String url, SearchUrlEntity search){
+        int pages = util.howManyPages(url);
+        for (int i = 1; i < pages + 1 ; i++) {
+            try {
+                String pagedURL = url + "&page=" + i;
+                Document doc = Jsoup.connect(pagedURL).get();
+                Elements links = doc.select("article");
+
+                for (Element article : links) {
+
+                    Element jobDiv = article.selectFirst("h2");
+                    Element companyDiv = article.selectFirst("span");
+
+                    if (jobDiv != null && companyDiv!=null) {
+                        URL companyUrl = getJobsiteWithUrl(companyDiv.text());
+                        JobDto dto = new JobDto(jobDiv.text(), companyDiv.text(), companyUrl,search);
                         jobDb.saveJob(dto);
                     }
                 }

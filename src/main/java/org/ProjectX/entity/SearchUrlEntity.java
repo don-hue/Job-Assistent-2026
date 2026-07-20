@@ -11,7 +11,7 @@ public class SearchUrlEntity {
     private Long id;
 
     @OneToMany(mappedBy = "search")
-    private List<SearchUrlEntity> jobs;
+    private List<JobEntity> jobs;
 
     @Column(unique = true, length = 2000)
     private String url ;

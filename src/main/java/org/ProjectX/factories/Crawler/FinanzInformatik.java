@@ -2,6 +2,7 @@ package org.ProjectX.factories.Crawler;
 import org.ProjectX.database.JobRepository;
 import org.ProjectX.config.Constants;
 import org.ProjectX.dto.JobDto;
+import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.service.CrawlerService;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
@@ -18,7 +19,7 @@ import java.nio.charset.StandardCharsets;
 public class FinanzInformatik implements CrawlerInterface{
     JobRepository db = JobRepository.getInstance();
     CrawlerService util = CrawlerService.getInstance();
-    public void crawlJobsiteOneParameter(String keyword) {
+    /*public void crawlJobsiteOneParameter(String keyword) {
         try {
             Document doc = Jsoup.connect(Constants.FinanzInformatik_Jobpage).get();
             Elements items = doc.select("div.list-row div.list-item");
@@ -27,6 +28,25 @@ public class FinanzInformatik implements CrawlerInterface{
                 if(item.text().toLowerCase().contains(keyword.toLowerCase())) {
                     URL jobUrl = getJobsiteWithUrl(Constants.FI_COMPANY_NAME);
                     JobDto jobDto = new JobDto(item.text(),Constants.FI_COMPANY_NAME, jobUrl);
+                    db.saveJob(jobDto);
+                }
+            }
+
+        } catch (IOException e) {
+            System.out.println("Error: " + e.getMessage() );
+            throw new RuntimeException();
+        }
+    }*/
+
+    public void crawlJobsiteTwoParameter(String keyword, SearchUrlEntity search) {
+        try {
+            Document doc = Jsoup.connect(Constants.FinanzInformatik_Jobpage).get();
+            Elements items = doc.select("div.list-row div.list-item");
+
+            for (Element item : items) {
+                if(item.text().toLowerCase().contains(keyword.toLowerCase())) {
+                    URL jobUrl = getJobsiteWithUrl(Constants.FI_COMPANY_NAME);
+                    JobDto jobDto = new JobDto(item.text(),Constants.FI_COMPANY_NAME, jobUrl,search);
                     db.saveJob(jobDto);
                 }
             }

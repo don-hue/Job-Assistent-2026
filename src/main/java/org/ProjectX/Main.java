@@ -10,13 +10,12 @@ import javafx.stage.Stage;
 /*
 
 toDo: Input Validator for URL Builder
-toDO: Split LocalBD Class into Repositories for Each Entity
+
 toDo: Implement JMS for Event-based Communication
 toDo: Crawler Factory Design Pattern
 toDo: showAlert in Utility amd make every error show for user
-toDo: Pagination
-toDO: Delete all Searches to clear finate filter
 toDO: optimize CSS for Alerts
+toDO: ErrorHandling with UI
  */
 
 

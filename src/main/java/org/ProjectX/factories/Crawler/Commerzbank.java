@@ -2,6 +2,7 @@ package org.ProjectX.factories.Crawler;
 
 import org.ProjectX.database.JobRepository;
 import org.ProjectX.dto.JobDto;
+import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.service.CrawlerService;
 import org.htmlunit.WebClient;
 import org.htmlunit.html.HtmlPage;
@@ -21,7 +22,7 @@ public class Commerzbank implements CrawlerInterface{
     JobRepository jobDb = JobRepository.getInstance();
 
     //crawl Commerzbank API for Jobs
-    public void crawlJobsiteOneParameter(String url){
+    /*public void crawlJobsiteOneParameter(String url){
         try (WebClient webClient = new WebClient()) {
             webClient.getOptions().setJavaScriptEnabled(true);
             webClient.getOptions().setCssEnabled(false); // faster
@@ -48,6 +49,40 @@ public class Commerzbank implements CrawlerInterface{
                         .path("CityName")
                         .asText();
                 JobDto dto = new JobDto(title, "Commerzbank - " + cityName, jobpage);
+                jobDb.saveJob(dto);
+            }
+        } catch (IOException e) {
+            System.out.println("Error accessing: ");
+        }
+    }*/
+
+    public void crawlJobsiteTwoParameter(String url, SearchUrlEntity search){
+        try (WebClient webClient = new WebClient()) {
+            webClient.getOptions().setJavaScriptEnabled(true);
+            webClient.getOptions().setCssEnabled(false); // faster
+            webClient.getOptions().setThrowExceptionOnScriptError(false);
+            final String jobsJson = webClient
+                    .getPage(url)
+                    .getWebResponse().getContentAsString();
+
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(jobsJson);
+            JsonNode jobs = root.path("SearchResult")
+                    .path("SearchResultItems");
+
+            URL jobpage = getJobsiteWithUrl("Commerzbank");
+            for (JsonNode job : jobs) {
+                String title = job.get("MatchedObjectDescriptor")
+                        .get("PositionTitle")
+                        .asText();
+
+                JsonNode location = job.path("MatchedObjectDescriptor")
+                        .path("PositionLocation");
+
+                String cityName = location.get(0)
+                        .path("CityName")
+                        .asText();
+                JobDto dto = new JobDto(title, "Commerzbank - " + cityName, jobpage,search);
                 jobDb.saveJob(dto);
             }
         } catch (IOException e) {

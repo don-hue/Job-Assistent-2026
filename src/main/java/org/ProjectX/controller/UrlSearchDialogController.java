@@ -61,7 +61,6 @@ public class UrlSearchDialogController {
         String keyword = keywordField.getText();
         String location = locationField.getText();
         String radius = radiusBox.getValue();
-
         return "https://www." + portal + ".de/" +
                 "jobs/" + URLEncoder.encode(keyword, StandardCharsets.UTF_8).replace("+", "%20") + "/" +
                 "in-" + location + "?whatType=autosuggest&" +
@@ -74,7 +73,6 @@ public class UrlSearchDialogController {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
-
                 double[] coordinates = utils.getGeoData(locationField.getText());
                 Utils utils = Utils.getInstance();
                 if(userUrl.getText().isEmpty()){
@@ -101,7 +99,6 @@ public class UrlSearchDialogController {
             }
         };
 
-        //ToDo : hier muss ein update der ui kommen
         task.setOnSucceeded( _ -> showAlert("Erfolgreich", "Die Suche wurde gespeichert !"));
 
         task.setOnFailed(_ -> showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal."));
@@ -207,7 +204,7 @@ public class UrlSearchDialogController {
         alert.setContentText(message);
         alert.showAndWait();
     }
-    public void updateSearch(Long id, Runnable action){
+    public void updateSearch(Long id, Runnable updateSearchList, Runnable updateJobList){
 
         Task<Void> task = new Task<>(){
             @Override
@@ -217,7 +214,10 @@ public class UrlSearchDialogController {
                 return null;
             };
         };
-        task.setOnSucceeded( _ -> action.run());
+        task.setOnSucceeded( _ ->{
+            updateSearchList.run();
+            updateJobList.run();
+        } );
 
         task.setOnFailed(_ -> showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal."));
 

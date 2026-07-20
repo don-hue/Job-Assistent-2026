@@ -1,5 +1,7 @@
 package org.ProjectX.factories.Crawler;
 
+import org.ProjectX.entity.SearchUrlEntity;
+
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -17,7 +19,7 @@ public interface CrawlerInterface {
         return new URL("https://duckduckgo.com");
     };
 
-    default void crawlJobsiteTwoParameter(String string, Long id) {
+    default void crawlJobsiteTwoParameter(String string, SearchUrlEntity search) {
         System.out.println("Default crawlJobsiteTwoParameter needs to be overwritten");
     };
 }

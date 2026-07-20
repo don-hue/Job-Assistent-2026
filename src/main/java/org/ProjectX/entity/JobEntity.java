@@ -48,4 +48,9 @@ public class JobEntity {
     public SearchUrlEntity getSearch() {
         return search;
     }
+
+    public void setSearch(SearchUrlEntity search) {
+        this.search = search;
+    }
+
 }

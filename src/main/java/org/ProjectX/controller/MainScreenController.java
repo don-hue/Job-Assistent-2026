@@ -356,7 +356,7 @@ public class MainScreenController {
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            controller.updateSearch(id, this::loadSearches);
+            controller.updateSearch(id, this::loadSearches, this::loadJobs);
         }
     }
 
@@ -456,12 +456,12 @@ public class MainScreenController {
                     List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
 
                     if(!searchUrls.isEmpty()) {
-                        for(SearchUrlEntity url :  searchUrls) {
-                            CrawlerInterface crawler = CrawlerFactory.createCrawler(url.getUrl());
+                        for(SearchUrlEntity search :  searchUrls) {
+                            CrawlerInterface crawler = CrawlerFactory.createCrawler(search.getUrl());
                             if(crawler instanceof FinanzInformatik) {
-                                crawler.crawlJobsiteOneParameter(url.getKeyword());
+                                crawler.crawlJobsiteTwoParameter(search.getKeyword(),search);
                             }
-                            crawler.crawlJobsiteOneParameter(url.getUrl());
+                            crawler.crawlJobsiteTwoParameter(search.getUrl(),search);
                         }
 
 

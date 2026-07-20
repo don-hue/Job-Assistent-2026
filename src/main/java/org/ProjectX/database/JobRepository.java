@@ -48,6 +48,7 @@ public class JobRepository {
                     job = new JobEntity();
                     job.setJobTitle(dto.job());
                     job.setCompany(company);
+                    job.setSearch(dto.search());
                     job.setApplied(false);
                 }
 
