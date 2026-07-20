@@ -2,7 +2,6 @@ package org.ProjectX.database;
 import org.ProjectX.dto.JobDto;
 import org.ProjectX.entity.CompanyEntity;
 import org.ProjectX.entity.JobEntity;
-import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
