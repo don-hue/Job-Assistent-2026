@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Stepsstone implements CrawlerInterface{
-    CrawlerService util = CrawlerService.getInstance();
     private final String url;
     private final SearchUrlEntity search;
 

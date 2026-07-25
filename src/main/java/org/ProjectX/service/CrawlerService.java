@@ -1,12 +1,7 @@
 package org.ProjectX.service;
-import org.ProjectX.dto.JobDto;
-import org.ProjectX.entity.CompanyEntity;
-import org.htmlunit.WebClient;
-import org.htmlunit.html.HtmlPage;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 
 import javax.swing.*;
@@ -24,8 +19,6 @@ public class CrawlerService {
 
     private CrawlerService() {
     }
-
-    ;
 
     public static CrawlerService getInstance() {
         return INSTANCE;
@@ -56,7 +49,7 @@ public class CrawlerService {
 
     public int howManyPages(String url) {
         int page = 1;
-        Boolean goOn = true;
+        boolean goOn = true;
 
         while (goOn) {
             try {
@@ -121,8 +114,7 @@ public class CrawlerService {
             Element firstResult = doc.selectFirst("a.result__a");
 
             if(firstResult != null) {
-                URL url = convertToURL(firstResult.attr("href"));
-                return url;
+                return convertToURL(firstResult.attr("href"));;
             }
             return null;
 

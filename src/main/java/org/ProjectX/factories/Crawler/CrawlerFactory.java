@@ -23,5 +23,5 @@ public class CrawlerFactory {
                     .build();
         }
         throw new IllegalArgumentException(url);
-    };
+    }
 }

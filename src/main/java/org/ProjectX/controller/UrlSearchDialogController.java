@@ -252,10 +252,4 @@ public class UrlSearchDialogController {
         new Thread(task).start();
 
     };
-
-    public void test(){
-        System.out.println("XXX keyword" + keywordField.getText());
-        System.out.println("XXX location" + locationField.getText());
-        System.out.println("XXX radius" + radiusBox.getValue());
-    }
 }

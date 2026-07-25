@@ -608,29 +608,5 @@ public class MainScreenController {
 
             new Thread(crawlTask).start();
         }
-    @FXML
-    private void test() {
-        /*try {
-            String url = "https://www.f-i.de/stellen-finden?FieldOfActivity[]=softwareentwicklung";
-            Document doc = Jsoup.connect(url).get();
-            Elements items = doc.select("div.list-row div.list-item");
-
-            for (Element item : items) {
-                if(item.text().toLowerCase().contains("java")) {
-                    System.out.println(item.text());
-                }
-
-                if(item.text().toLowerCase().contains("Fullstack")) {
-                    System.out.println(item.text());
-                }
-
-            }
-
-        } catch (IOException e) {
-            System.out.println("Error: " + e.getMessage() );
-            throw new RuntimeException();
-        }*/
-
-    }
 }
 

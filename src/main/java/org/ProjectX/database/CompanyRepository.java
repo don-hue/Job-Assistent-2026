@@ -58,10 +58,8 @@ public class CompanyRepository {
         Session session = null;
         try {
             session = factory.openSession();
-            List<CompanyEntity> companies = session.createQuery("FROM CompanyEntity", CompanyEntity.class)
+            return session.createQuery("FROM CompanyEntity", CompanyEntity.class)
                     .getResultList();
-
-            return companies;
         } catch (RuntimeException e) {
             throw new RuntimeException("DB failed for" + e);
         } finally {
