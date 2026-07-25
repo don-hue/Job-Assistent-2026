@@ -2,6 +2,7 @@ package org.ProjectX.entity;
 
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -13,8 +14,13 @@ public class SearchUrlEntity {
     @OneToMany(mappedBy = "search")
     private List<JobEntity> jobs;
 
-    @Column(unique = true, length = 2000)
-    private String url ;
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(
+            name = "search_urls",
+            joinColumns = @JoinColumn(name = "search_id")
+    )
+    @Column(name = "url", length = 2000)
+    private List<String> urls = new ArrayList<>();
 
     @Column
     private String keyword;
@@ -28,11 +34,11 @@ public class SearchUrlEntity {
     @Column
     private Boolean isCustom;
 
-    public void setUrl(String url) {
-        this.url = url;
+    public void setUrl(List<String> urls) {
+        this.urls = urls;
     }
-    public String getUrl() {
-        return url;
+    public List<String> getUrl() {
+        return urls;
     }
 
     public void setKeyword(String keyword) {

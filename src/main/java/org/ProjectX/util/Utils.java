@@ -50,16 +50,18 @@ public class Utils {
             double lat = first.path("lat").asDouble();
             double lon = first.path("lon").asDouble();
 
-
-            System.out.println("Lat: " + lat);
-            System.out.println("Lon: " + lon);
             return new double[]{lat, lon};
 
         } catch (MalformedURLException e) {
+            System.out.println("Error" + e.getMessage());
             throw new RuntimeException(e);
         } catch (IOException e) {
+            System.out.println("Error" + e.getMessage());
             throw new RuntimeException(e);
-        }
+        } catch (RuntimeException e) {
+        System.out.println("Error" + e.getMessage());
+        throw new RuntimeException(e);
+    }
     }
     public void add(
             ArrayNode criteria,

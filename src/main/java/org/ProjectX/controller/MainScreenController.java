@@ -17,9 +17,12 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import org.ProjectX.database.CompanyRepository;
 import org.ProjectX.database.JobRepository;
 import org.ProjectX.database.SearchUrlRepository;
 import org.ProjectX.config.Constants;
+import org.ProjectX.dto.TaskDTO;
+import org.ProjectX.entity.CompanyEntity;
 import org.ProjectX.entity.JobEntity;
 import org.ProjectX.entity.SearchUrlEntity;
 import org.ProjectX.factories.Alert.AlertFactory;
@@ -32,7 +35,8 @@ import org.ProjectX.factories.Checkbox.CheckboxFactory;
 import org.ProjectX.factories.Checkbox.CheckboxInterface;
 import org.ProjectX.factories.Crawler.CrawlerFactory;
 import org.ProjectX.factories.Crawler.CrawlerInterface;
-import org.ProjectX.factories.Crawler.FinanzInformatik;
+import org.ProjectX.service.CrawlerService;
+import org.ProjectX.service.DatabaseWriter;
 
 import java.awt.*;
 import java.io.IOException;
@@ -41,8 +45,13 @@ import java.net.URI;
 import java.net.URL;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MainScreenController {
+    Task<Void> crawlCompanyUrlTask;
+    Task<Void> crawlTask;
+
     @FXML
     private VBox jobContainer;
     @FXML
@@ -158,11 +167,16 @@ public class MainScreenController {
         Label title = new Label(jobTitle);
         title.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
+        if(url == null ) {
+            Label companyName = new Label(company);
+            content.getChildren().addAll(title, companyName);
+            return content;
+        }
         Hyperlink link = new Hyperlink(company);
         link.setOnAction(_ -> {
             try {
                 Desktop.getDesktop().browse(
-                       url.toURI()
+                        url.toURI()
                 );
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -255,6 +269,17 @@ public class MainScreenController {
                         "-fx-padding: 20;"
         );
 
+        Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
+        cancelButton.setOnAction(event -> {
+            if (crawlCompanyUrlTask != null && crawlCompanyUrlTask.isRunning()) {
+                crawlCompanyUrlTask.cancel(true);
+            }
+
+            if (crawlTask != null && crawlTask.isRunning()) {
+                crawlTask.cancel(true);
+            }
+        });
+
         dialog.show();
 
     }
@@ -335,9 +360,6 @@ public class MainScreenController {
         );
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            String generatedUrl = controller.buildUrl();
-
-            System.out.println(generatedUrl);
         }
     }
     private void openEditSearchConfigDialog(String url,String portal, String keyword, String postalCode, String radius, boolean isCustom, Long id) throws IOException {
@@ -423,7 +445,7 @@ public class MainScreenController {
             List<SearchUrlEntity> searches = task.getValue();
             searchCardContainer.getChildren().clear();
             if(!searches.isEmpty()) {
-                searches.stream().map(search-> createSearchCard(search.getPortal(), search.getKeyword(),search.getUrl(),search.getPostal_code(),search.getRadius(),search.getIsCustom(),search.getId()))
+                searches.stream().map(search-> createSearchCard(search.getPortal(), search.getKeyword(),search.getUrl().getFirst(),search.getPostal_code(),search.getRadius(),search.getIsCustom(),search.getId()))
                         .forEach(card -> searchCardContainer.getChildren().add(card));
                 System.out.println("Beendet");
                 dialog.close();
@@ -448,47 +470,143 @@ public class MainScreenController {
     @FXML
         private void crawlJobs(){
             createLoadingDialogUrl();
-
-            Task<Void> task = new Task<>() {
+            crawlTask = new Task<>() {
+            private ExecutorService crawlerPool;
+            private ExecutorService dbPool;
                 @Override
                 protected Void call() {
-                    SearchUrlRepository db = SearchUrlRepository.getInstance();
-                    List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
+                    BlockingQueue<JobEntity> queue = new LinkedBlockingQueue<>();
+                    crawlerPool = Executors.newFixedThreadPool(10);
+                    dbPool = Executors.newSingleThreadExecutor();
 
-                    if(!searchUrls.isEmpty()) {
-                        for(SearchUrlEntity search :  searchUrls) {
-                            CrawlerInterface crawler = CrawlerFactory.createCrawler(search.getUrl());
-                            if(crawler instanceof FinanzInformatik) {
-                                crawler.crawlJobsiteTwoParameter(search.getKeyword(),search);
-                            }
-                            crawler.crawlJobsiteTwoParameter(search.getUrl(),search);
+
+                    try {
+                        SearchUrlRepository db = SearchUrlRepository.getInstance();
+                        List<SearchUrlEntity> searchUrls = db.getAllSearchUrls();
+                        dbPool.submit(new DatabaseWriter(queue));
+
+                        searchUrls.stream()
+                                .flatMap(search -> search.getUrl().stream()
+                                        .map(url -> new TaskDTO(url,search)))
+                                .forEach(task ->
+                                        crawlerPool.submit(() -> {
+                                            try {
+                                                CrawlerInterface crawler = CrawlerFactory.createCrawler(task.url(), task.search());
+                                                List<JobEntity> jobs = crawler.crawl();
+                                                for (JobEntity job : jobs) {
+                                                    queue.put(job);
+                                                }
+                                            } catch(InterruptedException e) {
+                                                Thread.currentThread().interrupt();
+                                            } catch (Exception e) {
+                                                Thread.currentThread().interrupt();
+                                                e.printStackTrace();
+                                            }
+                                        })
+                                );
+
+                        crawlerPool.shutdown();
+                        if(!crawlerPool.awaitTermination(30, TimeUnit.MINUTES)){
+                            crawlerPool.shutdownNow();
                         }
 
-
-                    } else {
-                          throw new IllegalStateException("No search URLs configured");
+                        while (!queue.isEmpty()) {
+                            Thread.sleep(100);
+                        }
+                        queue.put(DatabaseWriter.POISON_PILL);
+                        dbPool.shutdown();
+                        if(!dbPool.awaitTermination(5, TimeUnit.MINUTES)){
+                            dbPool.shutdownNow();
+                        }
+                    } catch (InterruptedException e){
+                        Thread.currentThread().interrupt();
+                    } finally {
+                        crawlerPool.shutdownNow();
+                        dbPool.shutdownNow();
                     }
-
 
                     return null;
                 }
+            @Override
+            protected void cancelled() {
+                super.cancelled();
+                if (crawlerPool != null) crawlerPool.shutdownNow();
+                if (dbPool != null) dbPool.shutdownNow();
+            }
             };
 
-            task.setOnSucceeded(_ -> {
-                System.out.println("Beendet");
+            crawlTask.setOnSucceeded(_ -> {
+                crawlCompanyUrlTask = new Task<Void>() {
+                    @Override
+                    protected Void call() {
+                        try {
+                            CompanyRepository db = CompanyRepository.getInstance();
+                            CrawlerService crawlerService = CrawlerService.getInstance();
+                            List<CompanyEntity> companies = db.getAllCompanies();
+                            AtomicInteger amountCompanies = new AtomicInteger(companies.size());
+                            AtomicInteger amountSearched = new AtomicInteger(0);
+
+                            for(CompanyEntity company : companies) {
+                                if (isCancelled()) {
+                                    System.out.println("Cancelled");
+                                    break;
+                                }
+                                URL companyURL= crawlerService.getJobsiteWithUrl(company.getCompanyName());
+                                company.setUrl(companyURL);
+                                db.updateCompany(company);
+                                amountSearched.getAndAdd(1);
+                                System.out.println("Total Companies "+ amountCompanies);
+                                System.out.println("Already searched " + amountSearched);
+
+                                Thread.sleep(5000);
+                            }
+
+                        } catch (RuntimeException e) {
+                            throw new RuntimeException("CrawlCompanyUrlTask failed" + e);
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                            throw new RuntimeException(e);
+                        }
+                        return null;
+                    }
+                };
+
+                crawlCompanyUrlTask.setOnSucceeded(_ ->{
+                    alertInformation.showAlert("Erfolgreich", "Die Firmenseiten wurden gefunden. Bitte aktualisiere die Jobs !");
+                });
+
+                crawlCompanyUrlTask.setOnFailed(_ -> {
+                    Throwable ex = crawlCompanyUrlTask.getException();
+                    alertInformation.showAlert("Fehler", ex != null ? ex.getMessage() : "Die Urls konnten nicht geladen werden");
+                });
+
+                crawlCompanyUrlTask.setOnCancelled(_ -> {
+                    System.out.println("OnCancelled ");
+                    dialog.close();
+                });
+
+
+                new Thread(crawlCompanyUrlTask).start();
                 dialog.close();
-                alertInformation.showAlert("Erfolgreich", "Die Suche war erfolgreich !");
+                alertInformation.showAlert("Erfolgreich", "Es wurden Jobs gefunden. Die Karriereseiten der Unternehmen werden im Hintergrund geladen. ");
             });
 
-            task.setOnFailed(_ -> {
-                System.out.println("Abgebrochen");
+            crawlTask.setOnFailed(_ -> {
+                System.out.println("Failed");
                 dialog.close();
-                task.getException().printStackTrace();
-                alertInformation.showAlert("Fehler", task.getException().getMessage());
+                Throwable ex = crawlTask.getException();
+                if (ex != null) {
+                    ex.printStackTrace();
+                    alertInformation.showAlert("Fehler", ex.getMessage());
+                }
             });
 
-            new Thread(task).start();
+            crawlTask.setOnCancelled(_ -> {
+                System.out.println("OnCancelled ");
+                dialog.close();
+        });
 
+            new Thread(crawlTask).start();
         }
     @FXML
     private void test() {

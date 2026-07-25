@@ -7,12 +7,15 @@ import javafx.scene.layout.VBox;
 import org.ProjectX.database.JobRepository;
 import org.ProjectX.database.SearchUrlRepository;
 import org.ProjectX.config.Constants;
+import org.ProjectX.service.CrawlerService;
 import org.ProjectX.util.Utils;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.node.ArrayNode;
 import tools.jackson.databind.node.ObjectNode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 public class UrlSearchDialogController {
 
@@ -56,52 +59,75 @@ public class UrlSearchDialogController {
         radiusBox.getSelectionModel().selectFirst();
     }
 
-    public String buildUrl() {
+    public List<String> buildUrl() {
+        CrawlerService crawlerService = CrawlerService.getInstance();
         String portal = portalBox.getValue();
         String keyword = keywordField.getText();
         String location = locationField.getText();
         String radius = radiusBox.getValue();
-        return "https://www." + portal + ".de/" +
+        String url = "https://www." + portal + ".de/" +
                 "jobs/" + URLEncoder.encode(keyword, StandardCharsets.UTF_8).replace("+", "%20") + "/" +
                 "in-" + location + "?whatType=autosuggest&" +
                 "radius=" + radius + "&" +
                 "q" + URLEncoder.encode(keyword, StandardCharsets.UTF_8).replace("+", "%20") + "&" +
                 "searchOrigin=Resultlist_top-search";
+        return crawlerService.stepstoneSearchToUrls(url);
     }
 
     public void saveUrl() {
         Task<Void> task = new Task<>() {
             @Override
             protected Void call() {
-                double[] coordinates = utils.getGeoData(locationField.getText());
-                Utils utils = Utils.getInstance();
-                if(userUrl.getText().isEmpty()){
-                    String url  = buildUrl();
-                    searchDB.saveSearch(url,keywordField.getText(), portalBox.getValue(),locationField.getText(),radiusBox.getValue(), false);
+                try {
+                    double[] coordinates = utils.getGeoData(locationField.getText());
+                    Utils utils = Utils.getInstance();
+                    List<String> fiUrl = new ArrayList<>();
+                    fiUrl.add(Constants.FinanzInformatik_Jobpage);
+
+                    //Stepstone suche
+                    if(userUrl.getText().isEmpty()){
+                        List<String> urls  = buildUrl();
+                        searchDB.saveSearch(urls,keywordField.getText(), portalBox.getValue(),locationField.getText(),radiusBox.getValue(), false);
+                    }
+
+                    if(!userUrl.getText().isEmpty() && utils.isValidURL(userUrl.getText())) {
+                        List<String> stepstoneUrls = new ArrayList<>();
+                        stepstoneUrls.add(userUrl.getText());
+                        searchDB.saveSearch(stepstoneUrls, "Custom URL used", "Custom", "Custom", "Custom",true);
+                    }
+
+                    //Commerzbanksuche
+                    List<String> urls = buildCommerzbankApiUrlNoGeo(
+                            keywordField.getText(),
+                            50,
+                            "10",
+                            "12",
+                            locationField.getText(),
+                            coordinates[0],
+                            coordinates[1]
+                    );
+                    searchDB.saveSearch(fiUrl, keywordField.getText(), "Finanz Informatik","Custom","Custom",false);
+                    searchDB.saveCommerzBankSearch(urls, keywordField.getText());
+                } catch (RuntimeException e) {
+                    System.out.println("Task error" + e.getMessage());
+                    throw new RuntimeException(e);
                 }
 
-                if(!userUrl.getText().isEmpty() && utils.isValidURL(userUrl.getText())) {
-                    searchDB.saveSearch(userUrl.getText(), "Custom URL used", "Custom", "Custom", "Custom",true);
-                }
-
-                String url = buildCommerzbankApiUrlNoGeo(
-                        keywordField.getText(),
-                        50,
-                        "10",
-                        "12",
-                        locationField.getText(),
-                        coordinates[0],
-                        coordinates[1]
-                );
-                searchDB.saveSearch(Constants.FinanzInformatik_Jobpage, keywordField.getText(), "Finanz Informatik","Custom","Custom",false);
-                searchDB.saveCommerzBankSearch(url, keywordField.getText());
                 return null;
             }
         };
 
         task.setOnSucceeded( _ -> showAlert("Erfolgreich", "Die Suche wurde gespeichert !"));
 
-        task.setOnFailed(_ -> showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal."));
+        task.setOnFailed(_ -> {
+            Throwable ex = task.getException();
+            System.out.println("=== TASK FAILED ===");
+            System.out.println("Exception type: " + (ex != null ? ex.getClass().getName() : "null"));
+            System.out.println("Message: " + (ex != null ? ex.getMessage() : "null"));
+            if (ex != null) ex.printStackTrace();
+            System.out.println("===================");
+            showAlert("Fehler", "Es gab einen Fehler. Bitte probiere es später nochmal.");
+        });
 
         new Thread(task).start();
     }
@@ -114,7 +140,7 @@ public class UrlSearchDialogController {
         radiusBox.getSelectionModel().selectFirst();
     }
 
-    public String buildCommerzbankApiUrlNoGeo(
+    public List<String> buildCommerzbankApiUrlNoGeo(
             String keyword,
             int distance,
             String jobCategoryCode,
@@ -123,6 +149,7 @@ public class UrlSearchDialogController {
             double latitude,
             double longitude
     ) {
+        List<String> urls = new ArrayList<>();
         try {
             ObjectMapper mapper = new ObjectMapper();
 
@@ -164,12 +191,13 @@ public class UrlSearchDialogController {
 
             String json = mapper.writeValueAsString(root);
 
-            return Constants.COMMERZBANK_API
-                    + URLEncoder.encode(json, StandardCharsets.UTF_8);
+            urls.add(Constants.COMMERZBANK_API
+                    + URLEncoder.encode(json, StandardCharsets.UTF_8));
 
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+        return urls;
     }
 
     public void editSearch(String portal, String keyword, String postalCode, String radius, boolean isCustom) {

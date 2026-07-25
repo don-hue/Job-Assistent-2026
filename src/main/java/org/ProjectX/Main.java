@@ -1,10 +1,12 @@
 package org.ProjectX;
 
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import org.ProjectX.util.HibernateUtil;
 
 
 /*
@@ -27,6 +29,13 @@ public class Main extends Application {
         Scene welcomeScene = new Scene(root);
         stage.setScene(welcomeScene);
         stage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        System.out.println("Shutting down Hibernate...");
+        HibernateUtil.getSessionFactory().close();
+        super.stop();
     }
 
 

@@ -13,7 +13,7 @@ public class JobEntity {
     @Column()
     private boolean applied ;
 
-    @ManyToOne
+    @ManyToOne()
     @JoinColumn(name="company_id")
     private CompanyEntity company;
 

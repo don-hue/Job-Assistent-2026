@@ -13,14 +13,12 @@
         <property name="hibernate.connection.username">localUser</property>
         <property name="hibernate.connection.password"></property>
 
-        <!-- Dialect -->
-        <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
 
         <!-- Auto table creation -->
         <property name="hibernate.hbm2ddl.auto">update</property>
 
         <!-- Show SQL in console -->
-        <property name="hibernate.show_sql">true</property>
+        <property name="hibernate.show_sql">false</property>
         <property name="hibernate.format_sql">true</property>
 
         <!-- Entities -->

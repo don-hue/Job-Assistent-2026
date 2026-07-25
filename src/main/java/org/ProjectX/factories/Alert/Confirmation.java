@@ -14,7 +14,7 @@ public class Confirmation implements AlertInterface {
         alert.showAndWait()
                 .filter(response -> response == ButtonType.OK)
                 .ifPresent(_ -> {
-                    db.updateCompany(company);
+                    db.updateShowCompany(company);
                     action.run();
                 });
     }

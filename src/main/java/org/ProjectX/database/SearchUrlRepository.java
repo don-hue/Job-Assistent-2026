@@ -4,6 +4,8 @@ import org.ProjectX.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+
+import java.util.ArrayList;
 import java.util.List;
 
 public class SearchUrlRepository {
@@ -13,28 +15,31 @@ public class SearchUrlRepository {
         return INSTANCE;
     }
 
-    public void saveSearch(String url, String keyword, String portal, String portalCode, String radius, boolean isCustom) {
+    public void saveSearch(List<String> urls, String keyword, String portal, String portalCode, String radius, boolean isCustom) {
         SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
         try( Session session = sessionFactory.openSession()) {
             Transaction tx = session.beginTransaction();
             try {
-                SearchUrlEntity urlDB = session
-                        .createQuery("FROM SearchUrlEntity WHERE url = :url", SearchUrlEntity.class)
-                        .setParameter("url", url)
+                SearchUrlEntity search = session
+                        .createQuery("""
+                            SELECT s
+                            FROM SearchUrlEntity s
+                            JOIN s.urls u
+                            WHERE u = :url
+                        """, SearchUrlEntity.class)
+                        .setParameter("url", urls.getFirst())
                         .uniqueResult();
 
-                if (urlDB == null) {
-                    urlDB = new SearchUrlEntity();
-                    urlDB.setUrl(url);
-                    urlDB.setKeyword(keyword);
-                    urlDB.setPortal(portal);
-                    urlDB.setPostal_code(portalCode);
-                    urlDB.setRadius(radius);
-                    urlDB.setIsCustom(isCustom);
-                    session.persist(urlDB);
+                if (search == null) {
+                    search = new SearchUrlEntity();
+                    search.setUrl(urls);
+                    search.setKeyword(keyword);
+                    search.setPortal(portal);
+                    search.setPostal_code(portalCode);
+                    search.setRadius(radius);
+                    search.setIsCustom(isCustom);
+                    session.persist(search);
                 }
-
-
                 tx.commit();
 
             } catch (Exception e) {
@@ -42,20 +47,27 @@ public class SearchUrlRepository {
                     tx.rollback();
                 }
                 System.out.println("Error" + e.getMessage());
-                throw e;
+                throw new RuntimeException("Crawl failed" + e);
             }
 
         } catch (Exception e) {
             System.out.println("Error" + e.getMessage());
+            throw new RuntimeException("Crawl failed" + e);
         }
     }
-    public void saveCommerzBankSearch(String api, String keyword){
+    public void saveCommerzBankSearch(List<String> api, String keyword){
         SessionFactory factory = HibernateUtil.getSessionFactory();
         try(Session session = factory.openSession()) {
             Transaction tx = session.beginTransaction();
             try {
-                SearchUrlEntity search = session.createQuery("FROM SearchUrlEntity WHERE url = :api", SearchUrlEntity.class)
-                        .setParameter("api", api)
+                SearchUrlEntity search = session
+                        .createQuery("""
+                            SELECT s
+                            FROM SearchUrlEntity s
+                            JOIN s.urls u
+                            WHERE u = :api
+                        """, SearchUrlEntity.class)
+                        .setParameter("api", api.getFirst())
                         .uniqueResult();
 
                 if (search == null ){
@@ -72,11 +84,11 @@ public class SearchUrlRepository {
                     tx.rollback();
                 }
                 System.out.println("Error" + e.getMessage());
-                throw e;
+                throw new RuntimeException("Crawl failed" + e);
             }
         } catch(Exception e) {
             System.out.println("Error" + e.getMessage());
-            throw e;
+            throw new RuntimeException("Crawl failed" + e);
 
         }
     }
@@ -96,11 +108,11 @@ public class SearchUrlRepository {
                     tx.rollback();
                 }
                 System.out.println("Error" + e.getMessage());
-                throw e;
+                throw new RuntimeException("Crawl failed" + e);
             }
         } catch (Exception e) {
             System.out.println("Error" + e.getMessage());
-            throw e;
+            throw new RuntimeException("Crawl failed" + e);
         }
     }
     public void deleteSearch(String url) {
@@ -117,11 +129,11 @@ public class SearchUrlRepository {
                     tx.rollback();
                 }
                 System.out.println("Error" + e.getMessage());
-                throw e;
+                throw new RuntimeException("Crawl failed" + e);
             }
         } catch(Exception e) {
             System.out.println("Error" + e.getMessage());
-            throw e;
+            throw new RuntimeException("Crawl failed" + e);
         }
     }
     public void updateSearch( String keyword,String postalCode, String radius, Long id){
@@ -146,11 +158,12 @@ public class SearchUrlRepository {
                     tx.rollback();
                 }
                 System.out.println("Error" + e.getMessage());
-                throw e;
+                throw new RuntimeException("Crawl failed" + e);
             }
 
         } catch (Exception e) {
             System.out.println("Error" + e.getMessage());
+            throw new RuntimeException("Crawl failed" + e);
         }
 
     }
